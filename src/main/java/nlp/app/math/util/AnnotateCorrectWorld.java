@@ -1,22 +1,17 @@
-package nlp.app.math.corpus;
+/**AnnotateCorrectWorld.java
+ * 4:14:53 PM @author Arindam
+ */
+package nlp.app.math.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import nlp.app.math.app.EquationSolver;
-import nlp.app.math.app.FormEquations;
 import nlp.app.math.core.ChangeConcept;
 import nlp.app.math.core.IMathConcept;
+import nlp.app.math.core.MathSample;
 import nlp.app.math.core.PartWholeConcept;
 import nlp.app.math.core.ProblemRepresentation;
 import nlp.app.math.core.Quantity;
@@ -25,59 +20,29 @@ import nlp.app.math.core.Quantity;
  * @author Arindam
  *
  */
-public class TestCorpusAnnotation {
-	public void test() throws IOException{
-		FormEquations equationGenerator = new FormEquations();
-		EquationSolver equationSolver = new EquationSolver();
-		String jsonString = FileUtils.readFileToString(new 
-				File("C:\\Users\\Arindam\\Dropbox\\Math Challenge\\test_math.json"));
-		JSONArray problems = new JSONArray(jsonString);
+public class AnnotateCorrectWorld {
 
-		for(Object obj: problems){
-			JSONObject prob = (JSONObject)obj;
-			String t = prob.getString("sQuestion");
-			JSONArray s = prob.getJSONArray("lSolutions");
-			JSONArray concepts = prob.getJSONArray("semantics");
-			if(concepts.length()>1)
-				continue;
-			ProblemRepresentation irep = new ProblemRepresentation(t);
-			for(IMathConcept c: createConceptsFromJSON(concepts,irep)){
-				irep.addMathConcept(c);
-			}
-			try{
-				Map<String, String> result = equationSolver.solve(equationGenerator.formEquations(irep), 
-						irep.getUnknowns());
-				if(result.size()==1){
-					for(Entry<String, String> entry: result.entrySet()){
-						if(Double.parseDouble(entry.getValue()) == Double.parseDouble(s.getString(0))){
-							//correct
-						}else{
-							System.out.println("Solution mismatch");
-							System.out.println(obj);
-						}
-					}
-				}else{
-					System.out.println("More than one Solution");
-					System.out.println(obj);
-				}
-			}catch(Exception e){
-				System.out.println(e);
-				System.out.println(prob);
-			}
-		}
+
+	public AnnotateCorrectWorld(){
+
 	}
 
-	private Set<IMathConcept> createConceptsFromJSON(JSONArray concepts, 
+	public void annotate(MathSample sample, JSONArray annotations, 
 			ProblemRepresentation irep){
-		Set<IMathConcept> out = new HashSet<IMathConcept>();
-		for(Object obj : concepts){
-			JSONObject object = (JSONObject)obj;
-			
-			IMathConcept c = createConceptFromJSON(object,irep);
-			if(c!=null)
-				out.add(c);
+
+		for(Object a : annotations){
+			JSONObject annotation = (JSONObject) a;
+			IMathConcept c = this.createConceptFromJSON(annotation, irep);
+			int i=0;
+			for(IMathConcept concept: sample.getWorlds()){
+				if(concept.equals(c)){
+					sample.setCorrectY(i);
+					break;
+				}
+				i++;
+			}
 		}
-		return out;
+		
 	}
 
 	public IMathConcept createConceptFromJSON(JSONObject object, 
@@ -97,8 +62,8 @@ public class TestCorpusAnnotation {
 
 	private IMathConcept createPartWhole(JSONObject object, ProblemRepresentation irep ){
 		int i=0;
-		Quantity whole;
-		Quantity part;
+		Quantity whole = null;
+		Quantity part = null;
 		PartWholeConcept  ppw = new PartWholeConcept();
 		for(String key: object.keySet()){
 			if(key.equalsIgnoreCase("type"))
@@ -109,9 +74,14 @@ public class TestCorpusAnnotation {
 			if(name.equalsIgnoreCase("whole")){
 				String value = entry.getString("value");
 				if(value.equalsIgnoreCase("X")){
-					whole = irep.addUnknown(1, ++i);
+					whole = irep.getUnknownQuantities().get(0);
 				}else{
-					whole = irep.addConstantQuantity(value, 1, ++i);
+					for(Quantity q: irep.getQuantities()){
+						if(q.getValue().equalsIgnoreCase(value)){
+							whole  = q;
+							break;
+						}
+					}
 				}
 				ppw.setWhole(whole);
 			}else if(name.equalsIgnoreCase("part")){
@@ -119,9 +89,14 @@ public class TestCorpusAnnotation {
 				for(Object v: values){
 					String value = (String)v;
 					if(value.equalsIgnoreCase("X")){
-						part = irep.addUnknown(1, ++i);
+						part = irep.getUnknownQuantities().get(0);
 					}else{
-						part = irep.addConstantQuantity(value, 1, ++i);
+						for(Quantity q: irep.getQuantities()){
+							if(q.getValue().equalsIgnoreCase(value)){
+								part  = q;
+								break;
+							}
+						}
 					}
 					ppw.addPart(part);
 				}
@@ -131,7 +106,7 @@ public class TestCorpusAnnotation {
 	}
 
 	private IMathConcept createChange(JSONObject object, ProblemRepresentation irep){
-		int i=0;
+
 		Quantity start=null;
 		Quantity end=null;
 		List<Quantity> loss = new LinkedList<Quantity>();
@@ -146,27 +121,43 @@ public class TestCorpusAnnotation {
 			if(name.equalsIgnoreCase("start")){
 				String value = entry.getString("value");
 				if(value.equalsIgnoreCase("X")){
-					start = irep.addUnknown(1, ++i);
+					start = irep.getUnknownQuantities().get(0);
 				}else if(value.equalsIgnoreCase("default")){
-					start = irep.addConstantQuantity("0", 1, ++i);
+					start = new Quantity("0",-1,-1);
+					start.setDefault(true);
 				}else{
-					start = irep.addConstantQuantity(value, 1, ++i);
+					for(Quantity q: irep.getQuantities()){
+						if(q.getValue().equalsIgnoreCase(value)){
+							start  = q;
+							break;
+						}
+					}
 				}
 			}if(name.equalsIgnoreCase("end")){
 				String value = entry.getString("value");
 				if(value.equalsIgnoreCase("X")){
-					end = irep.addUnknown(1, ++i);
+					end = irep.getUnknownQuantities().get(0);
 				}else{
-					end = irep.addConstantQuantity(value, 1, ++i);
+					for(Quantity q: irep.getQuantities()){
+						if(q.getValue().equalsIgnoreCase(value)){
+							end  = q;
+							break;
+						}
+					}
 				}
 			}else if(name.equalsIgnoreCase("loss")){
 				JSONArray values = entry.getJSONArray("value");
 				for(Object v: values){
 					String value = (String)v;
 					if(value.equalsIgnoreCase("X")){
-						loss.add(irep.addUnknown(1, ++i));
+						loss.add(irep.getUnknownQuantities().get(0));
 					}else{
-						loss.add(irep.addConstantQuantity(value, 1, ++i));
+						for(Quantity q: irep.getQuantities()){
+							if(q.getValue().equalsIgnoreCase(value)){
+								loss.add(q);
+								break;
+							}
+						}
 					}
 				}
 			}else if(name.equalsIgnoreCase("gain")){
@@ -174,19 +165,19 @@ public class TestCorpusAnnotation {
 				for(Object v: values){
 					String value = (String)v;
 					if(value.equalsIgnoreCase("X")){
-						gain.add(irep.addUnknown(1, ++i));
+						gain.add(irep.getUnknownQuantities().get(0));
 					}else{
-						gain.add(irep.addConstantQuantity(value, 1, ++i));
+						for(Quantity q: irep.getQuantities()){
+							if(q.getValue().equalsIgnoreCase(value)){
+								gain.add(q);
+								break;
+							}
+						}
 					}
 				}
 			}
 		}
 		ChangeConcept  ch = new ChangeConcept(start, end, gain, loss);
 		return ch;
-	}
-
-	public static void main(String args[]) throws IOException{
-		TestCorpusAnnotation test  = new TestCorpusAnnotation();
-		test.test();
 	}
 }

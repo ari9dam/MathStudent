@@ -21,6 +21,7 @@ public class Quantity {
 	private boolean isUnknown;
 	private String unknownId;
 	private Map<String, List<CoreLabel>> context;
+	private boolean isDefault = false;
 	
 	public Quantity(String value, Integer sentenceId, Integer tokenId) {
 		this.value = value;
@@ -28,6 +29,7 @@ public class Quantity {
 		this.tokenId = tokenId;
 		this.isUnknown =  value==null;
 		this.context = new HashMap<String, List<CoreLabel>>();
+		this.isDefault = false;
 	}
 	/**
 	 * @return the type
@@ -141,5 +143,27 @@ public class Quantity {
 			
 		//else return the key itself. e.g. "X"
 		return this.getUnknownId();
+	}
+	/**
+	 * @return the isDefault
+	 */
+	public boolean isDefault() {
+		return isDefault;
+	}
+	/**
+	 * @param isDefault the isDefault to set
+	 */
+	public void setDefault(boolean isDefault) {
+		this.isDefault = isDefault;
+	}
+	
+	public String getUniqueId(){
+		return "@"+ this.SentenceId + "@"+ this.tokenId;
+	}
+	
+	public Double getDoubleValue(){
+		if(this.isUnknown)
+			return null;
+		return Double.parseDouble(this.value);
 	}
 }

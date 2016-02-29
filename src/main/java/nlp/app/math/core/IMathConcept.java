@@ -9,4 +9,6 @@ package nlp.app.math.core;
  */
 public interface IMathConcept {
 	public Equation toEquation();
+	public boolean equals(Object obj);
+	
 }

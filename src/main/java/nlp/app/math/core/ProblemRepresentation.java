@@ -21,7 +21,7 @@ public class ProblemRepresentation {
 	private Integer nuberOfQuantities;
 	private Map<Integer,Quantity> quantityMap;
 	private Map<Integer,Quantity> unknownMap;
-	private Set<IMathConcept> mathConcepts;
+	private List<IMathConcept> mathConcepts;
 	private Set<Equation> equations;
 	private String id;
 	private Map<String,Boolean> corefMap;
@@ -36,7 +36,7 @@ public class ProblemRepresentation {
 		this.quantityMap = new HashMap<Integer,Quantity>();
 		this.unknownMap = new HashMap<Integer,Quantity>();
 		this.equations = new HashSet<Equation>();
-		this.mathConcepts = new HashSet<IMathConcept>();
+		this.mathConcepts = new ArrayList<IMathConcept>();
 		this.corefMap = new HashMap<String,Boolean>();
 	}
 	
@@ -75,7 +75,7 @@ public class ProblemRepresentation {
 		this.equations = equations;
 	}
 	
-	public Set<IMathConcept> getMathConcepts(){
+	public List<IMathConcept> getMathConcepts(){
 		return this.mathConcepts;
 	}
 	
