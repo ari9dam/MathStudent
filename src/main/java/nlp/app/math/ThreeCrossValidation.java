@@ -27,7 +27,6 @@ public class ThreeCrossValidation {
 		 * ******************************
 		 */
 		String prefix="C:\\Users\\Arindam\\Dropbox\\Math Challenge\\Math_Word_DS_Kushman\\ALL\\all";
-		JSONArray failed = new JSONArray();
 		String jsonString = FileUtils.readFileToString(new 
 				File(prefix+".json"));
 		JSONArray problems = new JSONArray(jsonString);

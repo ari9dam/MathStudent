@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -25,7 +24,6 @@ import edu.asu.type.Sample;
 import nlp.app.math.app.UnknownFinder;
 import nlp.app.math.core.MathSample;
 import nlp.app.math.core.ProblemRepresentation;
-import nlp.app.math.core.Quantity;
 import nlp.app.math.core.features.FeatureExtraction;
 import nlp.app.math.preprocessing.StructureTagger;
 import nlp.app.math.util.AnnotateCorrectWorld;
@@ -93,11 +91,6 @@ public class TrainSolver {
 			/*****************************************************
 			 * Creating Math sample
 			 * ***************************************************/
-			
-			
-			List<Quantity> entities = irep.getQuantities();
-			Map<Integer,Pair<Quantity,Quantity>> dims = new 
-					HashMap<Integer,Pair<Quantity,Quantity>>();
 			
 			//###################################
 			//###create an empty math sample#####

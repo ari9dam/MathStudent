@@ -23,7 +23,7 @@ public class FeatureExtractorCommon {
 		beVerbs.add("be");
 		beVerbs.add("has");
 		beVerbs.add("have");
-		this.wnh = new WordNetHelper();
+		this.wnh = WordNetHelper.getInstance();
 	}
 
 	public void addFeatures(ProblemRepresentation rep, MathSample sample, 
@@ -66,11 +66,11 @@ public class FeatureExtractorCommon {
 					}else if(ns1.lemma().equals(ns2.lemma())){
 						subjmatch = true;
 					}else if((ns1.ner().equalsIgnoreCase("Person") && 
-							 !ns2.ner().equalsIgnoreCase("Person") && 
-							 !ns2.lemma().equalsIgnoreCase("they")) 
+							!ns2.ner().equalsIgnoreCase("Person") && 
+							!ns2.lemma().equalsIgnoreCase("they")) 
 							|| (ns2.ner().equalsIgnoreCase("Person") 
-								&& !ns1.ner().equalsIgnoreCase("Person")
-								&& !ns1.lemma().equalsIgnoreCase("they"))){
+									&& !ns1.ner().equalsIgnoreCase("Person")
+									&& !ns1.lemma().equalsIgnoreCase("they"))){
 						defaultSubjMatch = true;
 					}else if((wnh.isAHyponym(ns1.lemma(), "person", 1) && 
 							!ns2.ner().equalsIgnoreCase("Person")) || (wnh.isAHyponym(ns2.lemma(), "person", 1) && 
@@ -94,9 +94,27 @@ public class FeatureExtractorCommon {
 				boolean v1Entailsv2 = false;
 				boolean v2Entailsv1 = false;
 				HashSet<String> verb1 = new HashSet<String>();
+				HashSet<CoreLabel> verb2 = new HashSet<CoreLabel>();
 				for(CoreLabel l: q1.getAssociatedEntity("verb"))
 					verb1.add(l.lemma());
-				for(CoreLabel l: q2.getAssociatedEntity("verb")){
+				if(!verb1.isEmpty() && verb1.contains("do")){
+					for(CoreLabel l: q1.getAssociatedEntity("ccomp")){
+						verb1.add(l.lemma());
+					}
+				}
+
+				for(CoreLabel l: q2.getAssociatedEntity("verb"))
+					verb2.add(l);
+				for(CoreLabel label: verb2){
+					if(label.lemma().equals("do")){
+						for(CoreLabel l: q2.getAssociatedEntity("ccomp")){
+							verb2.add(l);
+						}
+						break;
+					}
+				}
+
+				for(CoreLabel l: verb2){
 					if(beVerbs.contains(l.lemma()))
 						continue;
 

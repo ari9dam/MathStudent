@@ -19,6 +19,7 @@ import edu.stanford.nlp.trees.GrammaticalRelation;
  */
 public class AssociatedWordFinder {
 
+	@SuppressWarnings("unused")
 	private boolean debug;
 
 	public AssociatedWordFinder(boolean debug){
@@ -35,7 +36,7 @@ public class AssociatedWordFinder {
 			try{
 				nbrs.addAll(g.getChildList(g.getNodeByIndex(i)));
 				nbrs.addAll(g.getParentList(g.getNodeByIndex(i)));
-				
+
 				for(IndexedWord word: nbrs){
 					if(sen.getPOS(word.index()).toLowerCase().startsWith(pos)){
 						if(!pos.startsWith("vb") || !g.getChildrenWithReln(g.getNodeByIndex(i), 
@@ -46,7 +47,7 @@ public class AssociatedWordFinder {
 			}catch(Exception e){
 
 			}
-			
+
 			if(i<minIndex)
 				minIndex = i;
 
@@ -85,12 +86,12 @@ public class AssociatedWordFinder {
 
 		}
 		if(!pos.startsWith("vb")||ret.size()==0)
-		for(int  i=minIndex;i<sen.getTokenSequence().size();i++){
-			if(sen.getPOS(i).toLowerCase().startsWith(pos)){
-				ret.add(i);
-				break;
+			for(int  i=minIndex;i<sen.getTokenSequence().size();i++){
+				if(sen.getPOS(i).toLowerCase().startsWith(pos)){
+					ret.add(i);
+					break;
+				}
 			}
-		}
 
 		return ret;
 	}
@@ -106,7 +107,7 @@ public class AssociatedWordFinder {
 			String rel) {
 		Set<Integer> ret = new HashSet<Integer>();
 		Set<IndexedWord> nn = new HashSet<IndexedWord>();
-
+		Set<IndexedWord> ccomp = new HashSet<IndexedWord>();
 		for(Integer v : verb){
 			nn = s.getDependencyGraph().getChildrenWithReln(s.getDependencyGraph().getNodeByIndex(v), 
 					GrammaticalRelation.valueOf(rel));
@@ -130,6 +131,26 @@ public class AssociatedWordFinder {
 			//to hadnle the case where "is" "are" is the verb
 			ret.removeAll(typeIds);
 			ret.removeAll(verb);
+
+			if(ret.isEmpty()){
+				for(Integer v : verb){
+					ccomp = s.getDependencyGraph().getChildrenWithReln(s.getDependencyGraph().getNodeByIndex(v), 
+							GrammaticalRelation.valueOf("ccomp"));
+				}
+				for(IndexedWord c: ccomp){
+					nn.addAll(s.getDependencyGraph().getChildrenWithReln(c, 
+							GrammaticalRelation.valueOf("nsubj")));
+				}
+				
+
+				for(IndexedWord index: nn){
+					ret.add(index.index());
+				}
+				
+				ret.removeAll(typeIds);
+				ret.removeAll(verb);
+
+			}
 		}
 		return ret;
 	}

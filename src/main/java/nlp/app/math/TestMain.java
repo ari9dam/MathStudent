@@ -29,7 +29,7 @@ public class TestMain {
 		for(Object p : testProblems){
 			JSONObject test = (JSONObject) p; 
 			total++;
-			try{
+/*			try{
 				Problem res2 = solver2.solve(test.getString("sQuestion"));
 				ArrayList<String> answers = new ArrayList<String>(res2.getAnswers().values());
 				if(answers.size()== 1){
@@ -46,7 +46,7 @@ public class TestMain {
 				
 			}catch(Exception e){
 				System.out.println(e);
-			}
+			}*/
 			try{
 				Problem res3 = solver3.solve(test.getString("sQuestion"));
 				ArrayList<String> answers = new ArrayList<String>(res3.getAnswers().values());
@@ -55,6 +55,8 @@ public class TestMain {
 					Double cans = Double.parseDouble(answers.get(0));
 					if(aans.equals(cans)){
 						correct2++;
+					}else{
+						System.out.println(res3);
 					}
 				}
 				

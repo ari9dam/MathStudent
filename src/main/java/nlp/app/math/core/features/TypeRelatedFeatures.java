@@ -23,10 +23,8 @@ public class TypeRelatedFeatures{
 	private final String fName2 = "f_sameType";
 	private final String fName3 = "f_notdisjoint";// not subType or Same Type and not disjoint
 	private final String fName4 = "f_disjoint";//purely disjoint
-	/** for all pair
-	 * if [wholePart == true] &&
-	 *   type of part is subset of type of whole
-	 */
+	private final String fName5 = "f_isAType"; // computed from WordNet
+
 
 	public void addFeatures(ProblemRepresentation rep, MathSample sample, 
 			Map<String, Double> featureMap){
@@ -54,10 +52,10 @@ public class TypeRelatedFeatures{
 				featureMap.put(this.fName2+id, 0.0);
 				featureMap.put(this.fName3+id, 0.0);
 				featureMap.put(this.fName4+id, 0.0);
+				featureMap.put(this.fName5+id, 0.0);// compute with concept net
 
-
-				if(tQ1.containsAll(tQ2)||tQ1.isEmpty()){
-					if(!tQ1.isEmpty() && !tQ2.isEmpty() && tQ1.size()!=tQ2.size()
+				if(tQ1.containsAll(tQ2)){
+					if(!tQ2.isEmpty() && tQ1.size()!=tQ2.size()
 							){
 						featureMap.put(this.fName1+id, 1.0);
 					}else{

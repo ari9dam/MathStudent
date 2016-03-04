@@ -33,6 +33,8 @@ public class PartWholeSubjectCue implements IFeatureExtractor{
 		if(world instanceof PartWholeConcept){
 			PartWholeConcept ppw = (PartWholeConcept) world;
 			Quantity whole = ppw.getWhole();
+			if(ppw.getParts().size()<2)
+				return;
 			double value = 1.0;
 			for(Quantity part : ppw.getParts()){
 				String id = whole.getUniqueId() + part.getUniqueId();

@@ -31,6 +31,7 @@ public class RelationFinder {
 	private Map<String, Double> vpMap ;
 	
 	
+	@SuppressWarnings("unchecked")
 	public RelationFinder(ArrayList<String> featureNames, String model) 
 			throws ClassNotFoundException, IOException {
 		this.featureNames = featureNames;

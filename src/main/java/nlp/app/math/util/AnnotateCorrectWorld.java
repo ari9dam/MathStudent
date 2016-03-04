@@ -38,11 +38,15 @@ public class AnnotateCorrectWorld {
 				if(concept.equals(c)){
 					sample.setCorrectY(i);
 					break;
-				}
+				}			
 				i++;
 			}
+			
+			if(i==sample.getWorlds().size()){
+				System.out.println(irep);
+			}
 		}
-		
+
 	}
 
 	public IMathConcept createConceptFromJSON(JSONObject object, 
@@ -61,7 +65,6 @@ public class AnnotateCorrectWorld {
 	}
 
 	private IMathConcept createPartWhole(JSONObject object, ProblemRepresentation irep ){
-		int i=0;
 		Quantity whole = null;
 		Quantity part = null;
 		PartWholeConcept  ppw = new PartWholeConcept();
@@ -77,10 +80,13 @@ public class AnnotateCorrectWorld {
 					whole = irep.getUnknownQuantities().get(0);
 				}else{
 					for(Quantity q: irep.getQuantities()){
+						if(q.isUnknown())
+							continue;
 						if(q.getValue().equalsIgnoreCase(value)){
 							whole  = q;
 							break;
 						}
+
 					}
 				}
 				ppw.setWhole(whole);
@@ -92,10 +98,13 @@ public class AnnotateCorrectWorld {
 						part = irep.getUnknownQuantities().get(0);
 					}else{
 						for(Quantity q: irep.getQuantities()){
+							if(q.isUnknown())
+								continue;
 							if(q.getValue().equalsIgnoreCase(value)){
 								part  = q;
 								break;
 							}
+
 						}
 					}
 					ppw.addPart(part);

@@ -32,6 +32,7 @@ public class UnknownFinder {
 	 */
 	public void findUnknowns(ProblemRepresentation p){
 		int sId=0;
+		ArrayList<CoreLabel> prevType = null;
 		for(AnnotatedSentence s: p.getAnnotatedSentences()){
 			boolean isQuestion = this.isAQuestion(s);
 			sId++;
@@ -50,14 +51,15 @@ public class UnknownFinder {
 					 */
 					Quantity quantity = p.addConstantQuantity(s.getWord(token),sId,token.index());
 					
-					//add type (closest noun phrase)					
-					quantity.setType(this.typeDetecter.findType(token, s));
+					//add type (closest noun phrase)	
+					ArrayList<CoreLabel> type = this.typeDetecter.findType(token, s, prevType);
+					
 					
 					/**
 					 * add associated verb
 					 * 
 					 */
-					ArrayList<CoreLabel> type = quantity.getType();
+					
 					ArrayList<Integer> typeIds = new ArrayList<Integer>();
 					typeIds.add(token.index());
 					for(CoreLabel l: type)
@@ -73,7 +75,7 @@ public class UnknownFinder {
 					Set<Integer> dobj = this.associatedWordFinder.findAssociatedWordWithRel(verb,typeIds, s, "dobj");
 					Set<Integer> tmod = this.associatedWordFinder.findAssociatedWordWithRel(verb,typeIds, s, "tmod");
 					Set<Integer> amod = this.associatedWordFinder.findAssociatedWordWithRel(verb,typeIds, s, "amod");
-					
+					Set<Integer> xcomp = this.associatedWordFinder.findAssociatedWordWithRel(verb,typeIds, s, "xcomp");
 					
 					Set<Integer> union =  new HashSet<Integer>();
 					union.addAll(typeIds);
@@ -102,6 +104,15 @@ public class UnknownFinder {
 					quantity.setContext("advmod", advmod, s);
 					quantity.setContext("nmod", nmod, s);
 					quantity.setContext("prep_in_amod", prep_in_amod, s);
+					quantity.setContext("xcomp", xcomp, s);
+					
+					if(type.isEmpty())
+						type.addAll(prevType);
+					quantity.setType(type);
+					prevType = type;
+					System.out.println("Quantity"+ quantity.getValue()+":"
+							+ " "+ quantity.getType());
+					
 				}
 			}
 			
@@ -117,6 +128,9 @@ public class UnknownFinder {
 				boolean many = false;
 				boolean much = false;
 				boolean what = false;
+				/***
+				 * add what also in condition
+				 */
 				if(s.getRawSentence().toLowerCase().contains("how")){
 					
 					CoreLabel targetToken = null;
@@ -144,13 +158,18 @@ public class UnknownFinder {
 					
 					quantity = p.addUnknown(sId,targetToken.index());
 					//add type (closest noun phrase)					
-					quantity.setType(this.typeDetecter.findType(targetToken, s));
+					quantity.setType(this.typeDetecter.findType(targetToken, s, 
+							prevType));
 					ArrayList<CoreLabel> type = quantity.getType();
 					
 					typeIds.add(q.index());
 					typeIds.add(targetToken.index()-1);//how
 					for(CoreLabel l: type)
 						typeIds.add(l.index());
+					
+					if(type.isEmpty())
+						type.addAll(prevType);
+					prevType = type;
 				}
 				
 				Set<Integer> verb = this.associatedWordFinder.findAssociatedWordForQuestion(typeIds,s,
@@ -173,6 +192,7 @@ public class UnknownFinder {
 				Set<Integer> prep_in = this.associatedWordFinder.findAssociatedWordWithRel(verb,
 						new ArrayList<Integer>(union), s, "prep_in");
 				Set<Integer> ccomp = this.associatedWordFinder.findAssociatedWordWithRel(verb, typeIds, s, "ccomp");
+				Set<Integer> xcomp = this.associatedWordFinder.findAssociatedWordWithRel(verb,typeIds, s, "xcomp");
 				union.clear();
 				union.addAll(typeIds);
 				union.addAll(ccomp);
@@ -191,8 +211,12 @@ public class UnknownFinder {
 				quantity.setContext("advmod", advmod, s);
 				quantity.setContext("nmod", nmod, s);
 				quantity.setContext("dobj", dobj, s);
-				quantity.setContext("tmod", dobj, s);
+				quantity.setContext("tmod", tmod, s);
 				quantity.setContext("prep_in_amod", prep_in_amod, s);
+				quantity.setContext("xcomp", xcomp, s);
+				
+				System.out.println("Quantity"+ quantity.getValue()+":"
+						+ " "+ quantity.getType());
 			}
 		}
 	}

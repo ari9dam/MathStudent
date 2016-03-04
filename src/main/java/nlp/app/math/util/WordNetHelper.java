@@ -19,8 +19,10 @@ import edu.smu.tspell.wordnet.WordSense;
  *
  */
 public class WordNetHelper {
+	@SuppressWarnings("unused")
 	private int length = 2;
-	public WordNetHelper(){
+	private static final WordNetHelper wnh = new WordNetHelper();
+	private WordNetHelper(){
 		System.setProperty("wordnet.database.dir", "C:\\WordNet-3.0\\dict\\");
 
 	}
@@ -163,6 +165,10 @@ public class WordNetHelper {
 
 	}
 	
+	public boolean isAdjective(String word){
+		WordNetDatabase database = WordNetDatabase.getFileInstance(); 
+		return database.getSynsets(word, SynsetType.ADJECTIVE).length>0;
+	}
 
 	public static void main(String args[]){
 		WordNetHelper wnh = new WordNetHelper();
@@ -170,5 +176,10 @@ public class WordNetHelper {
 		System.out.println(wnh.isAHyponym("competition", "competition",1));
 		System.out.println(wnh.isAntonym("win", "defeat"));
 		System.out.println(wnh.entails("win", "play"));
+		System.out.println(wnh.isAdjective("broken"));
+	}
+	
+	public static WordNetHelper getInstance(){
+		return wnh ;
 	}
 }
