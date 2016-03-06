@@ -3,6 +3,7 @@ package nlp.app.math.core;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ public class Problem {
 	private Map<String,String> answers;
 	private List<Equation> equations;
 	private final ObjectMapper mapper = new ObjectMapper();
+	private List<IMathConcept> concepts;
 	
 	public Problem(JSONObject obj){
 		String qs = obj.getString("sQuestion");
@@ -47,6 +49,8 @@ public class Problem {
 		} catch (IOException e) {
 			this.equations = new ArrayList<Equation>();
 		}
+		
+		concepts = new LinkedList<IMathConcept>();
 	}
 	
 	public Problem(String problem){
@@ -100,8 +104,21 @@ public class Problem {
 	 */
 	@Override
 	public String toString() {
-		return "Problem [text=" + text + ", answers=" + answers + ", equations=" + equations + "]";
+		return "Problem [text=" + text + ", answers=" + answers + ", worlds=" + concepts +", equations=" + equations + "]";
 	}
-	
+
+	/**
+	 * @return the concepts
+	 */
+	public List<IMathConcept> getConcepts() {
+		return concepts;
+	}
+
+	/**
+	 * @param concepts the concepts to set
+	 */
+	public void addConcepts(List<IMathConcept> concepts) {
+		this.concepts.addAll(concepts);
+	}
 	
 }

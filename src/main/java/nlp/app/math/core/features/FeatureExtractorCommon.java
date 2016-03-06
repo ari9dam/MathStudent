@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import edu.stanford.nlp.ling.CoreLabel;
 import nlp.app.math.core.MathSample;
 import nlp.app.math.core.ProblemRepresentation;
@@ -36,6 +38,7 @@ public class FeatureExtractorCommon {
 		 *  4. exact verb match
 		 *  5. subj to iobj match
 		 *  6. iobj to subj match
+		 *  7. prep_in match
 		 *  for each pair of quantity 
 		 */
 		int verpRepeat = 0;
@@ -202,7 +205,26 @@ public class FeatureExtractorCommon {
 					tmodMatch = true;
 				}
 				featureMap.put("f_tmodmatch"+id, tmodMatch?1.0:0.0);
+
+				List<CoreLabel> prep_in1 = q1.getAssociatedEntity("prep_in");
+				List<CoreLabel> prep_in2 = q2.getAssociatedEntity("prep_in");
+				boolean prep_in_match = false;
+				if(!prep_in1.isEmpty() && !prep_in2.isEmpty()){
+					Set<String> p1 = new HashSet<String>();
+					Set<String> p2 = new HashSet<String>();
+
+					for(CoreLabel l:prep_in1 ){
+						p1.add(l.lemma());
+					}
+
+					for(CoreLabel l:prep_in2 ){
+						p2.add(l.lemma());
+					}
+					prep_in_match = p1.equals(p2);
+				}
+				featureMap.put("f_prep_inmatch"+id, prep_in_match?1.0:0.0);
 			}
+			
 			featureMap.put("f_verbRepeated"+id, verpRepeat>0?1.0:0.0);
 		}
 	}

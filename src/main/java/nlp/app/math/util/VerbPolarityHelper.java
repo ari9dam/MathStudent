@@ -46,7 +46,7 @@ public class VerbPolarityHelper {
 		return 0;
 	}
 	
-	public void persist(String filename) throws IOException{
+	public void persist() throws IOException{
 		List<String> list = new LinkedList<String>();
 		for(Entry<String, Double> entry: this.verbPolarityMap.entrySet()){
 			list.add(entry.getKey()+"\t"+entry.getValue());
@@ -104,7 +104,8 @@ public class VerbPolarityHelper {
 		}
 	}
 	
-	public static void main(String[] args){
-		
+	public static void main(String[] args) throws IOException{
+		VerbPolarityHelper v = VerbPolarityHelper.getInstance();
+		v.persist();
 	}
 }

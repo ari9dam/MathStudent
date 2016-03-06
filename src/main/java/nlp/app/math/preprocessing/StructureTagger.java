@@ -4,6 +4,7 @@
 package nlp.app.math.preprocessing;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -44,10 +45,10 @@ public class StructureTagger {
 	public void process(ProblemRepresentation irep){
 
 		String text = irep.getText();
-		
+
 		// create an empty Annotation just with the given text
 		Annotation document = new Annotation(text);
-		
+
 		// run all Annotators on this text
 		pipeline.annotate(document);
 
@@ -55,17 +56,81 @@ public class StructureTagger {
 		// a CoreMap is essentially a Map that uses class objects as keys 
 		//and has values with custom types
 		List<CoreMap> sens = document.get(SentencesAnnotation.class);
-		
+
 		ArrayList<AnnotatedSentence> sentences = new ArrayList<AnnotatedSentence>();
 		for(CoreMap sentence: sens){
 			sentences.add(new AnnotatedSentence(sentence.get(TextAnnotation.class),sentence));
 		}
-		
+
 		/**
 		 * Add co-reference
 		 */
 		Map<Integer, CorefChain> corefChain = document.get(CorefChainAnnotation.class);
 		if(corefChain!=null){
+			List<Integer> source = new LinkedList<Integer>();
+			List<Integer> target = new LinkedList<Integer>();
+			List<CorefMention> except = new LinkedList<CorefMention>();
+			
+			//manual rule to correct: "His [a-z]*? [a-z]*? him"
+			for(Entry<Integer, CorefChain> chain:corefChain.entrySet() ){
+				boolean matched = false;
+				int corefChainId = -1;
+				for(CorefMention elem: chain.getValue().getMentionsInTextualOrder()){
+					if(elem.mentionSpan.matches("[hH]is [a-z]*?")){
+						int sentence = elem.position.get(0);
+						int token = elem.endIndex-1;
+
+						AnnotatedSentence sen = sentences.get(sentence-1);
+
+						if(token+3< sen.getTokenSequence().size()&& 
+								token>0){
+							String sub = "";
+							for(int i = token-1;i<token+3;i++){
+								sub += sen.getWord(i)+" ";
+							}
+							if(sub.matches("[hH]is [a-z]*? [a-z]*? him ")){
+								matched = true;
+
+								// find cluster ID
+								for(Entry<Integer, CorefChain> chain1:corefChain.entrySet() ){
+									for(CorefMention elem1: 
+										chain1.getValue().getMentionsInTextualOrder()){
+										if(elem1.position.get(0)==sentence &&
+												(elem1.endIndex)==token){
+											corefChainId = elem1.corefClusterID;
+											break;
+										}
+									}
+									if(corefChainId!=-1)
+										break;
+								}
+							}
+							
+							if(matched && corefChainId != -1){
+								source.add(elem.corefClusterID);
+								target.add(corefChainId);
+								except.add(elem);
+							}
+						}
+					}
+				}
+			}
+			
+			for(int i=0;i<source.size();i++){
+				List<CorefMention> remove = new LinkedList<CorefMention>();
+				List<CorefMention> s = corefChain.get(source.get(i)).getMentionsInTextualOrder();
+				List<CorefMention> t = corefChain.get(target.get(i)).getMentionsInTextualOrder();
+				for(CorefMention elem: s){
+					if(!elem.equals(except.get(i))){
+						t.add(elem);
+						remove.add(elem);
+					}
+				}
+				s.removeAll(remove);
+				remove.clear();		
+			}
+			
+			
 			for(Entry<Integer, CorefChain> chain:corefChain.entrySet() ){
 				for(CorefMention elem1: chain.getValue().getMentionsInTextualOrder()){
 					for(CorefMention elem2: chain.getValue().getMentionsInTextualOrder()){
@@ -74,7 +139,7 @@ public class StructureTagger {
 				}
 			}
 		}
-		
+
 		irep.setAnnotatedSentences(sentences);
 	}
 }

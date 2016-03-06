@@ -94,6 +94,10 @@ public class GenerateAllPossibleWorlds {
 			while(it_loss.hasNext()){
 				List<Quantity> loss = it_loss.next();
 				if(!gain.isEmpty() || !loss.isEmpty()){
+					if(start.isDefault()){
+						if(gain.size()+loss.size()<2)
+							continue;
+					}
 					ChangeConcept c = new ChangeConcept(start,end, gain, loss);
 					sample.addWorld(c);
 				}

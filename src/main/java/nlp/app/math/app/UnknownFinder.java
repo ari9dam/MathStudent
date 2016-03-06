@@ -30,7 +30,7 @@ public class UnknownFinder {
 	 * For each question it finds out 
 	 * @param p the input problem
 	 */
-	public void findUnknowns(ProblemRepresentation p){
+	public void findUnknowns(ProblemRepresentation p) throws RuntimeException{
 		int sId=0;
 		ArrayList<CoreLabel> prevType = null;
 		for(AnnotatedSentence s: p.getAnnotatedSentences()){
@@ -106,8 +106,22 @@ public class UnknownFinder {
 					quantity.setContext("prep_in_amod", prep_in_amod, s);
 					quantity.setContext("xcomp", xcomp, s);
 					
-					if(type.isEmpty())
+					if(type.isEmpty()){
+						if(prevType==null){
+							int snid = 1;
+							for(AnnotatedSentence sn: p.getAnnotatedSentences()){
+								if(snid>sId)
+									break;
+								int right = -1;
+								if(snid==sId)
+									right =  token.index();
+								prevType = this.typeDetecter.findObj(sn, right);
+								if(!prevType.isEmpty())
+									break;
+							}
+						}
 						type.addAll(prevType);
+					}
 					quantity.setType(type);
 					prevType = type;
 					System.out.println("Quantity"+ quantity.getValue()+":"
@@ -167,8 +181,10 @@ public class UnknownFinder {
 					for(CoreLabel l: type)
 						typeIds.add(l.index());
 					
-					if(type.isEmpty())
+					if(type.isEmpty()){
+						
 						type.addAll(prevType);
+					}
 					prevType = type;
 				}
 				

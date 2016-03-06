@@ -166,4 +166,16 @@ public class Quantity {
 			return null;
 		return Double.parseDouble(this.value);
 	}
+	
+	public boolean hasNonBeVerb(){
+		for(CoreLabel c: this.getAssociatedEntity("verb")){
+			if(!c.lemma().equalsIgnoreCase("be") &&
+					!c.lemma().equalsIgnoreCase("has") &&
+					!c.lemma().equalsIgnoreCase("have")){
+				return true;
+			}
+		}
+		
+		return false;
+	}
 }

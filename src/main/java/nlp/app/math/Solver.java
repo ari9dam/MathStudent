@@ -100,6 +100,7 @@ public class Solver {
 		 */
 		out.setEquations(equations);
 		out.setAnswers(solution);
+		out.addConcepts(irep.getMathConcepts());
 		
 		if(debug){
 			System.out.println(irep);

@@ -100,4 +100,32 @@ public class TypeDetecter {
 		
 		return type;
 	}
+	
+	public ArrayList<CoreLabel> findObj(AnnotatedSentence s, 
+			int right) throws RuntimeException{
+		
+		int i=0;
+		boolean nextNoun = false;
+		boolean found = false;
+		ArrayList<CoreLabel> obj = new ArrayList<CoreLabel>();
+		
+		for(CoreLabel token: s.getTokenSequence()){
+			if(right!=-1 && i>=right)
+				break;
+			
+			if(POSUtil.isVerb(s.getPOS(token))){
+				nextNoun = true;
+			}
+			
+			if(nextNoun && POSUtil.isNoun(s.getPOS(token))){
+				obj.add(token);
+				found = true;
+			}
+			
+			if(found && !POSUtil.isNoun(s.getPOS(token)))
+				break;
+			i++;
+		}
+		return obj;
+	}
 }

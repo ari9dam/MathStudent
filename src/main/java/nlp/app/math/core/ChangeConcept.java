@@ -109,6 +109,22 @@ public class ChangeConcept implements IMathConcept {
 			return false;
 		return true;
 	}
+
+	
+	@Override
+	public String toString() {
+		String gain="";
+		for(Quantity g:gains){
+			gain+=g.getValueForEquation()+",";
+		}
+		
+		String loss="";
+		for(Quantity g:losses){
+			loss+=g.getValueForEquation()+",";
+		}
+		
+		return "ChangeConcept [\nstart=" + start.getValueForEquation() + ", \nend=" + end.getValueForEquation() + ", gains=" + gain + ", \nlosses=" + loss + "]";
+	}
 	
 	
 

@@ -21,17 +21,21 @@ import nlp.app.math.core.Quantity;
  */
 public class ChangeStratCue implements IFeatureExtractor{
 
-	private String fName1 = "f_change_start_implicitcue";
-	private String fName2 = "f_change_start_explicitcue";
-	private String fName3 = "f_change_default_startcue";
+	public static final String fName1 = "f_change_start_implicitcue";
+	public static final String fName2 = "f_change_start_explicitcue";
+	public static final String fName3 = "f_change_default_startcue";
+	public static final String fName4 = "f_change_prior_startcue";
+	
 	@Override
 	public void addFeatures(ProblemRepresentation rep, MathSample sample, int y,
 			Map<String, Double> aggregatefeatureMap, Map<String, Double> featureMap) {
-		aggregatefeatureMap.put(fName1, 0.0);
-		aggregatefeatureMap.put(fName2, 0.0);
-		aggregatefeatureMap.put(fName3, 0.0);
-		
+		featureMap.put(fName1, 0.0);
+		featureMap.put(fName2, 0.0);
+		featureMap.put(fName3, 0.0);
+		featureMap.put(fName4, 0.0);
 		IMathConcept world = sample.getWorld(y);
+		
+
 		
 		if(world instanceof ChangeConcept){
 			
@@ -39,6 +43,8 @@ public class ChangeStratCue implements IFeatureExtractor{
 			
 			Quantity start = chc.getStart();
 			
+			if(y==268)
+				System.out.print("");
 			/**
 			 * Start is default
 			 */
@@ -48,8 +54,8 @@ public class ChangeStratCue implements IFeatureExtractor{
 				boolean defaultStartcue = false;
 				for(Quantity q: rep.getQuantities()){
 					defaultStartcue = true;
-					String id = start.getUniqueId()+ q.getUniqueId();
-					if(q==start)
+					String id = chc.getEnd().getUniqueId()+ q.getUniqueId();
+					if(q==start|| q==chc.getEnd())
 						continue;
 					
 					double typeMatch = featureMap.get("f_sameType"+id);
@@ -69,9 +75,14 @@ public class ChangeStratCue implements IFeatureExtractor{
 				}
 				
 				if(defaultStartcue)
-					aggregatefeatureMap.put(fName3, 1.0);
+					featureMap.put(fName3, 1.0);
 				
 			}else{
+				
+				String id = chc.getEnd().getUniqueId() + start.getUniqueId();
+				double typeMatch = featureMap.get("f_sameType"+id);
+				if(typeMatch<0.5)
+					return;
 				
 				//start implicit cue : past possessive verb
 				boolean pastPossesiveVerb = false;
@@ -87,8 +98,22 @@ public class ChangeStratCue implements IFeatureExtractor{
 					}
 				}
 				
+				if(!pastPossesiveVerb && verbs.size()>0 && !start.hasNonBeVerb()){
+					// if the end is future start can be present
+					List<CoreLabel> endverbs = chc.getEnd().getAssociatedEntity("verb");
+					for(CoreLabel label: endverbs){
+						if(label.originalText().equalsIgnoreCase("be")||
+								label.originalText().equalsIgnoreCase("has")||
+								label.originalText().equalsIgnoreCase("have")){
+							if("vb".equalsIgnoreCase(label.get(PartOfSpeechAnnotation.class))){
+								pastPossesiveVerb = true;
+							}
+						}
+					}
+				}
+				
 				if(pastPossesiveVerb){
-					aggregatefeatureMap.put(fName1, 1.0);
+					featureMap.put(fName1, 1.0);
 				}
 				
 				//start explicit cue : "initially", "started with" etc.
@@ -97,7 +122,7 @@ public class ChangeStratCue implements IFeatureExtractor{
 				for(CoreLabel label: xcomp){
 					if(label.lemma().equalsIgnoreCase("start")){
 						AnnotatedSentence sentence = rep.getAnnotatedSentences().get(
-								start.getSentenceId());
+								start.getSentenceId()-1);
 						
 						String nextWord = sentence.getLemma(label.index()+1);
 						if(nextWord!=null && "with".equalsIgnoreCase(nextWord)){
@@ -109,7 +134,13 @@ public class ChangeStratCue implements IFeatureExtractor{
 				}
 				
 				if(explicitcue){
-					aggregatefeatureMap.put(fName2, 1.0);
+					featureMap.put(fName2, 1.0);
+				}
+				
+				if(!pastPossesiveVerb && !explicitcue){
+					if(!start.hasNonBeVerb() && verbs.size()>0 && start.getSentenceId()==1){
+						featureMap.put(fName4, 1.0);
+					}
 				}
 			}
 		}
