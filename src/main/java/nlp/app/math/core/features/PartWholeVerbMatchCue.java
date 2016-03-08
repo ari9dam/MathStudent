@@ -1,11 +1,10 @@
-/**PartWholeVerbMatchCue.java
- * 10:39:30 AM @author Arindam
- */
 package nlp.app.math.core.features;
 
+import java.util.List;
 import java.util.Map;
 
 import edu.stanford.nlp.ling.CoreLabel;
+import nlp.app.conceptnet.ConceptNetCache;
 import nlp.app.math.core.IMathConcept;
 import nlp.app.math.core.MathSample;
 import nlp.app.math.core.PartWholeConcept;
@@ -19,6 +18,7 @@ import nlp.app.math.core.Quantity;
 public class PartWholeVerbMatchCue implements IFeatureExtractor{
 
 	private final String fName = "f_partwhole_verbmatchcue";
+	private final String fName1 = "f_partwhole_verbrelatedcue";
 	// think of adding three more
 	// 1. synnonym
 	// 2. verb and subj match
@@ -27,61 +27,86 @@ public class PartWholeVerbMatchCue implements IFeatureExtractor{
 	public void addFeatures(ProblemRepresentation rep, MathSample sample, int y,
 			Map<String, Double> aggregatefeatureMap, Map<String, Double> featureMap) {
 		aggregatefeatureMap.put(fName, 0.0);
+		aggregatefeatureMap.put(fName1, 0.0);
 		IMathConcept world = sample.getWorld(y);
 		if(world instanceof PartWholeConcept){
+
 			PartWholeConcept ppw = (PartWholeConcept) world;
-			Quantity whole = ppw.getWhole();
-			double value = 0.0;
-			boolean wholeMarkedWithCue = false;
-			
-			
-			for(CoreLabel c: whole.getAssociatedEntity("prep_in")){
-				if(c.lemma().equalsIgnoreCase("total")){
-					wholeMarkedWithCue = true;
-				}else if(c.lemma().equalsIgnoreCase("all")){
-					wholeMarkedWithCue = true;
-				}
-			}
-			for(CoreLabel l: whole.getAssociatedEntity("advmod")){
-				if(l.lemma().equalsIgnoreCase("together"))
-					wholeMarkedWithCue = true;
-			}
-			
+
 			if(ppw.getParts().size()<2)
 				return;
-			/**
-			 * 1 evening , a restaurant served a total of 0.2 loaf of wheat bread and 0.4 
-			 * loaf of white bread .
-			 *  How many loaves were served in all ?
-			 */
-			value = 1.0;
+
+			Quantity whole = ppw.getWhole();
+			double value = ppw.getParts().size()*1.0;
+			boolean usedRelatedVerb = false;
+			double value1 = ppw.getParts().size();
+			boolean wholeMarkedWithCue = whole.isMarkedWithAll(rep);
+
+
+
+			boolean existsAllMarker = false;
+
+			for(Quantity q: sample.getQuantities()){
+				if(q==whole)
+					continue;
+				existsAllMarker = existsAllMarker || q.isMarkedWithAll(rep);
+			}
+
+			if(!wholeMarkedWithCue && (existsAllMarker|| !whole.isUnknown()))
+				return;
+			
+			if(whole.isMarkedWithTotalOf(rep)&& existsAllMarker )
+				return;
+
 			for(Quantity part : ppw.getParts()){
-				
-				
+
 				String id = whole.getUniqueId() + part.getUniqueId();
 				double typeMatch = featureMap.get("f_sameType"+id);
 				double exactVerbMatch = featureMap.get("f_exactVerbMatched"+id);
 
-				for(CoreLabel l: whole.getAssociatedEntity("dobj")){
-					if(l.lemma().equalsIgnoreCase("total")){
-						if(part.getAssociatedEntity("prep_in").isEmpty()){
-							wholeMarkedWithCue = true;
-						}else{
-							for(CoreLabel c: part.getAssociatedEntity("prep_in")){
-								if(!c.lemma().equalsIgnoreCase("total")&&!c.lemma().equalsIgnoreCase("all"))
-									wholeMarkedWithCue = true;
+
+				if(typeMatch<0.5){
+					typeMatch = featureMap.get("f_subType"+id) + 
+							featureMap.get("f_subType"+part.getUniqueId()+whole.getUniqueId());
+				}
+
+				if(typeMatch<0.5 || exactVerbMatch < 0.5){
+
+					if(typeMatch >0.5){
+						List<CoreLabel> verb1 = whole.getAssociatedEntity("verb");
+						List<CoreLabel> verb2 = part.getAssociatedEntity("verb");
+						if(verb1.size()==1&&verb2.size()==1  && exactVerbMatch<0.5 
+								&& part.hasNonBeVerb() && whole.hasNonBeVerb()){
+							String v1 = verb1.get(0).lemma();
+							String v2 = verb2.get(0).lemma();
+
+							boolean relatedTo = ConceptNetCache.getInstance().
+									isRelated(v1, v2, "RelatedTo");
+
+							relatedTo  =  relatedTo || ConceptNetCache.getInstance().
+									isRelated(v2, v1, "RelatedTo");
+							if(!relatedTo
+									||v1.equalsIgnoreCase("do")||v2.equalsIgnoreCase("do")){
+								value1 = 0.0;
+							}else{
+								usedRelatedVerb = true;
+								System.out.println(v1+"-"+v2);
 							}
+						}else{
+							value1 = 0.0;
 						}
+					}else{
+						value1 = 0.0;
 					}
-				} 
-				
-				if(typeMatch<0.5 || exactVerbMatch < 0.5|| !wholeMarkedWithCue ){
+
 					value = 0.0;
 					break;
 				}
 			}
-			aggregatefeatureMap.put(fName, value);
 			
+			aggregatefeatureMap.put(fName, value);
+			if(usedRelatedVerb)
+				aggregatefeatureMap.put(fName1, value1);
 		}
 	}
 }

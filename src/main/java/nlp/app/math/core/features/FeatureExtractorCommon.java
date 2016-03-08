@@ -201,9 +201,8 @@ public class FeatureExtractorCommon {
 					if(ns1.lemma().equalsIgnoreCase(ns2.lemma()))
 						tmodMatch = true;
 
-				}else if((tmod1.size()==0||tmod2.size()==0)){
-					tmodMatch = true;
 				}
+				
 				featureMap.put("f_tmodmatch"+id, tmodMatch?1.0:0.0);
 
 				List<CoreLabel> prep_in1 = q1.getAssociatedEntity("prep_in");

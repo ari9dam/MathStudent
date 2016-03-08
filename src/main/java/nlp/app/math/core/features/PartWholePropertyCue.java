@@ -102,7 +102,6 @@ public class PartWholePropertyCue implements IFeatureExtractor{
 					for(String s1: diff2){
 						if(wnh.isAntonym(s, s1)){
 							isAntonym = true;
-							System.out.println("used");
 							break;
 						}
 					}

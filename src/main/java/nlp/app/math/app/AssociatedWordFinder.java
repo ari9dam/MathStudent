@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.asu.nlu.common.ds.AnnotatedSentence;
+import edu.asu.nlu.common.util.POSUtil;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.semgraph.SemanticGraph;
 import edu.stanford.nlp.trees.GrammaticalRelation;
@@ -41,11 +42,24 @@ public class AssociatedWordFinder {
 					if(sen.getPOS(word.index()).toLowerCase().startsWith(pos)){
 						if(!pos.startsWith("vb") || !g.getChildrenWithReln(g.getNodeByIndex(i), 
 								GrammaticalRelation.valueOf("advcl")).contains(word))
-							ret.add(word.index());
+							if(pos.startsWith("vb")){
+								Set<IndexedWord> x = g.getParentsWithReln(word, 
+										GrammaticalRelation.valueOf("xcomp"));
+								ArrayList<IndexedWord> xcomp = new ArrayList<IndexedWord>(x);
+								if(xcomp.size()==1&& 
+										POSUtil.isVerb(sen.getPOS(xcomp.get(0).index()))
+										&& !POSUtil.isAux(sen.getLemma(xcomp.get(0).index()))){
+									ret.add(xcomp.get(0).index());
+								}else{
+									ret.add(word.index());
+								}
+							}else{
+								ret.add(word.index());
+							}
 					}
 				}
 			}catch(Exception e){
-
+				e.printStackTrace();
 			}
 
 			if(i<minIndex)
@@ -59,7 +73,7 @@ public class AssociatedWordFinder {
 					break;
 				}
 			}
-
+		
 		return ret;
 	}
 
@@ -92,7 +106,37 @@ public class AssociatedWordFinder {
 					break;
 				}
 			}
-
+		
+		if(pos.equalsIgnoreCase("vb")&&ret.size()==1){
+			int rem = -1;
+			for(Integer id: ret){
+				if(sen.getLemma(id).equalsIgnoreCase("do")){
+					boolean changed = false;
+					Set<IndexedWord> p = g.getParentsWithReln(g.getNodeByIndex(id), 
+							GrammaticalRelation.valueOf("aux"));
+					for(IndexedWord ind: p){
+						if(POSUtil.isVerb(sen.getPOS(ind.index()))){
+							ret.add(ind.index());
+							changed = true;
+							rem = id;
+						}
+					}
+					
+					if(!changed){
+						p = g.getChildrenWithReln(g.getNodeByIndex(id), 
+								GrammaticalRelation.valueOf("ccomp"));
+						for(IndexedWord ind: p){
+							if(POSUtil.isVerb(sen.getPOS(ind.index()))){
+								ret.add(ind.index());
+								rem = id;
+							}
+						}
+					}
+				}
+			}
+			
+			ret.remove(rem);
+		}
 		return ret;
 	}
 
@@ -112,15 +156,23 @@ public class AssociatedWordFinder {
 			nn = s.getDependencyGraph().getChildrenWithReln(s.getDependencyGraph().getNodeByIndex(v), 
 					GrammaticalRelation.valueOf(rel));
 		}
-
-		if(nn.size()==0){
-			for(Integer v : typeIds){
-				try{
-					nn.addAll(s.getDependencyGraph().getChildrenWithReln(s.getDependencyGraph().getNodeByIndex(v), 
-							GrammaticalRelation.valueOf(rel)));
-				}catch(Exception e){
-
+		boolean hasVbrel = !nn.isEmpty();
+		for(Integer v : typeIds){
+			try{
+				Set<IndexedWord> temp = s.getDependencyGraph().getChildrenWithReln(s.getDependencyGraph().getNodeByIndex(v), 
+						GrammaticalRelation.valueOf(rel));
+				if(hasVbrel){
+					for(IndexedWord word:temp){
+						if(s.getLemma(word.index()).equalsIgnoreCase("all")||
+								s.getLemma(word.index()).equalsIgnoreCase("total"))
+							nn.add(word);
+					}
+				}else{
+					nn.addAll(temp);
 				}
+					
+			}catch(Exception e){
+
 			}
 		}
 

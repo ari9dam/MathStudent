@@ -27,7 +27,7 @@ public class ChangeEndQue implements IFeatureExtractor {
 			Map<String, Double> aggregatefeatureMap, Map<String, Double> featureMap) {
 		featureMap.put(fName, 0.0);
 		featureMap.put(fName1, 0.0);
-		if(y==268)
+		if(y==28)
 			System.out.print("");
 		IMathConcept world = sample.getWorld(y);
 
@@ -75,6 +75,12 @@ public class ChangeEndQue implements IFeatureExtractor {
 					if(typeMatch>0.5
 							&& onlybe 
 							&& end.getSentenceId()>=(rep.getAnnotatedSentences().size()-1)){
+						featureMap.put(fName1, 1.0);
+					}
+					
+					if(end.getAssociatedEntity("prep_in").isEmpty() 
+							&& typeMatch>0.5 
+							&& presentPossesiveVerb && end.isUnknown()){
 						featureMap.put(fName1, 1.0);
 					}
 					

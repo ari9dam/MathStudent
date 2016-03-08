@@ -6,6 +6,7 @@ package nlp.app.math.core.features;
 import java.util.List;
 import java.util.Map;
 
+import edu.asu.nlu.common.ds.AnnotatedSentence;
 import edu.stanford.nlp.ling.CoreLabel;
 import nlp.app.math.core.ChangeConcept;
 import nlp.app.math.core.IMathConcept;
@@ -29,7 +30,7 @@ public class ChangeGainQue implements IFeatureExtractor {
 		featureMap.put(fName1, 0.0);
 		IMathConcept world = sample.getWorld(y);
 		VerbPolarityHelper vhelper = VerbPolarityHelper.getInstance();
-		if(y==268)
+		if(y==28)
 			System.out.print("");
 		
 		if(world instanceof ChangeConcept){
@@ -45,7 +46,12 @@ public class ChangeGainQue implements IFeatureExtractor {
 				
 				double polarity = 0;
 				for(CoreLabel label: verbs){
-					polarity += vhelper.getPolarity(label.lemma());
+					/**
+					 * if the verb is compound lemma will be different
+					 */
+					AnnotatedSentence sen = rep.getAnnotatedSentences().get(q.getSentenceId()-1);
+	
+					polarity += vhelper.getPolarity(sen.getFullLemma(label));
 				}
 				
 				if(q.isUnknown()){
@@ -61,12 +67,22 @@ public class ChangeGainQue implements IFeatureExtractor {
 				}
 				
 				String id = end.getUniqueId() + q.getUniqueId();
+				
+				
 				double subjMatch = featureMap.get("f_subjmatch"+id);
-				double typeMatch = featureMap.get("f_sameType"+id);
+				if(subjMatch<0.1&& !chc.getStart().isDefault()){
+					String id2 = chc.getStart().getUniqueId()+ q.getUniqueId();
+					subjMatch+= featureMap.get("f_subjmatch"+id2);
+				}
+				double typeMatch = featureMap.get("f_sameType"+id)+ featureMap.get("f_subType"+id) + 
+						featureMap.get("f_subType"+q.getUniqueId()+end.getUniqueId()) ;
 				if(typeMatch<0.5){
 					featureMap.put(fName1, 1.0);
 				}
-				if(typeMatch < 0.5 || (polarity <-0.5 && subjMatch > 0.5)||(polarity > 0.5 && subjMatch < 0.5)||(polarity<0.001 && polarity>-0.0002))
+				
+				if(typeMatch < 0.5 || (polarity <-0.5 && subjMatch > 0.5)
+						||(polarity > 0.5 && subjMatch < 0.5)
+						||(polarity<0.001 && polarity>-0.0002))
 					return;
 				
 			}

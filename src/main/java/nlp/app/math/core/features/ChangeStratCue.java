@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.asu.nlu.common.ds.AnnotatedSentence;
+import edu.asu.nlu.common.ds.Tense;
 import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import nlp.app.math.core.ChangeConcept;
@@ -43,7 +44,7 @@ public class ChangeStratCue implements IFeatureExtractor{
 			
 			Quantity start = chc.getStart();
 			
-			if(y==268)
+			if(y==30)
 				System.out.print("");
 			/**
 			 * Start is default
@@ -105,7 +106,11 @@ public class ChangeStratCue implements IFeatureExtractor{
 						if(label.originalText().equalsIgnoreCase("be")||
 								label.originalText().equalsIgnoreCase("has")||
 								label.originalText().equalsIgnoreCase("have")){
-							if("vb".equalsIgnoreCase(label.get(PartOfSpeechAnnotation.class))){
+							//future tense
+							AnnotatedSentence sen = rep.getAnnotatedSentences()
+									.get(chc.getEnd().getSentenceId()-1);
+							boolean isFuture = sen.getTense(label.index()).equals(Tense.FUTURE);
+							if(isFuture || "vb".equalsIgnoreCase(label.get(PartOfSpeechAnnotation.class))){
 								pastPossesiveVerb = true;
 							}
 						}

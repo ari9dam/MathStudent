@@ -22,7 +22,8 @@ public class ChangeCueDerived implements IFeatureExtractor {
 	private String fName6 = "f_derived_change_type_mismatch";
 	private String fName4 = "f_derived_change_mayend";
 	private String fName5 = "f_derived_change_priorstart";
-
+	private String fName7 = "f_derived_change_explicitstart";
+	private String fName8 = "f_derived_change_explicitstart_mayend";
 	@Override
 	public void addFeatures(ProblemRepresentation rep, MathSample sample, int y,
 			Map<String, Double> aggregatefeatureMap, Map<String, Double> featureMap) {
@@ -33,13 +34,14 @@ public class ChangeCueDerived implements IFeatureExtractor {
 		aggregatefeatureMap.put(fName4, 0.0);
 		aggregatefeatureMap.put(fName5, 0.0);
 		aggregatefeatureMap.put(fName6, 0.0);
+		aggregatefeatureMap.put(fName7, 0.0);
 		IMathConcept world = sample.getWorld(y);
 
 		if(world instanceof ChangeConcept){
 
 			ChangeConcept chc = (ChangeConcept) world;
 			
-			
+			int weight = chc.getGains().size() + chc.getLosses().size(); 
 			boolean notEmptyLoss = chc.getLosses().size()>0;
 			boolean notEmptyGain = chc.getGains().size()>0;
 			
@@ -60,20 +62,27 @@ public class ChangeCueDerived implements IFeatureExtractor {
 
 			boolean def_gain_change = !bad && gain && def_start && end;
 			boolean def_only_loss_change = !bad && !gain && loss && def_start && end;
-			boolean derived_change = !bad && (gain || loss) && (exp_start||im_start) && ! def_start && end;
+			boolean derived_change = !bad && (gain || loss) && (im_start) && ! def_start && end;
+			boolean derived_change_exp_start = !bad && (gain || loss) && (exp_start) && ! def_start && end;
 			boolean derived_prior_start = !bad && (gain || loss) && prior_start && (end||mayend);
-			boolean derived_change_mayend = !bad && (gain || loss) && (prior_start||exp_start||im_start) && !def_start && mayend;
+			boolean derived_change_mayend = !bad && (gain || loss) && (prior_start||im_start) && !def_start && mayend;
+			boolean derived_change_expst_mayend = !bad && (gain || loss) && (exp_start) && !def_start && mayend;
 
 			boolean change_type_mismatch = !bad && (gain || loss) && (def_start||exp_start||im_start||prior_start)  
 					&& (end||mayend) && (loss_type_mismatch||gain_type_mismatch);
 
 
-			aggregatefeatureMap.put(fName1, def_gain_change? 1.0:0.0);
-			aggregatefeatureMap.put(fName2, def_only_loss_change? 1.0:0.0);
-			aggregatefeatureMap.put(fName3, derived_change? 1.0:0.0);
-			aggregatefeatureMap.put(fName4, derived_change_mayend? 1.0:0.0);
-			aggregatefeatureMap.put(fName5, derived_prior_start? 1.0:0.0);
-			aggregatefeatureMap.put(fName6, change_type_mismatch? 1.0:0.0);
+			aggregatefeatureMap.put(fName1, def_gain_change? weight:0.0);
+			aggregatefeatureMap.put(fName2, def_only_loss_change? weight:0.0);
+			aggregatefeatureMap.put(fName3, derived_change? weight:0.0);
+			aggregatefeatureMap.put(fName4, derived_change_mayend? weight:0.0);
+			aggregatefeatureMap.put(fName5, derived_prior_start? weight:0.0);
+			aggregatefeatureMap.put(fName6, change_type_mismatch? weight:0.0);
+			aggregatefeatureMap.put(fName7, derived_change_exp_start? weight:0.0);
+			aggregatefeatureMap.put(fName8, derived_change_expst_mayend? weight:0.0);
+			if(change_type_mismatch){
+				System.out.println("mismatch");
+			}
 
 		}
 	}

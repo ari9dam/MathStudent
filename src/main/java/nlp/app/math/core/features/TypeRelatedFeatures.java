@@ -53,7 +53,30 @@ public class TypeRelatedFeatures{
 				featureMap.put(this.fName3+id, 0.0);
 				featureMap.put(this.fName4+id, 0.0);
 				featureMap.put(this.fName5+id, 0.0);// compute with concept net
-
+				
+				if(tQ1.size()==1&& tQ2.size()==1 ){
+					boolean dollar = false;
+					for(String l: tQ1){
+						if(l.equalsIgnoreCase("$")||l.equalsIgnoreCase("money")|| l.equalsIgnoreCase("dollar")){
+							dollar = true;
+						}
+					}
+					if(dollar){
+						for(String l: tQ2){
+							if(l.equalsIgnoreCase("$")||l.equalsIgnoreCase("money")||l.equalsIgnoreCase("dollar")){
+								dollar = true;
+							}
+						}
+					}
+					
+					if(dollar)
+						featureMap.put(this.fName2+id, 1.0);
+				}
+				
+				if(q1.isUnknown()&& tQ1.isEmpty() && !tQ2.isEmpty()){
+					featureMap.put(this.fName2+id, 1.0);
+				}
+				
 				if(tQ1.containsAll(tQ2)){
 					if(!tQ2.isEmpty() && tQ1.size()!=tQ2.size()
 							){

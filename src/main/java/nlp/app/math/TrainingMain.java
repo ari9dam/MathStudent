@@ -9,6 +9,8 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 
+import nlp.app.conceptnet.ConceptNetCache;
+
 /**
  * @author Arindam
  *
@@ -53,18 +55,18 @@ public class TrainingMain {
 				prefix+"_training_data.ser",
 				prefix+"_model_unsmoothed.ser");*/
 		
-		tsolver.train(true,0.1,0.01,
+		/*tsolver.train(true,0.1,0.01,
 				prefix+"_training_data.ser",
 				prefix+"_model_smoothed_0_01.ser");
 		
-		System.out.println("Done!!");
+		System.out.println("Done!!");*/
 		
-		tsolver.train(true,0.1,0.001,
+		tsolver.train(true,0.1,0.01,
 				prefix+"_training_data.ser",
 				prefix+"_model_smoothed_0_001.ser");
 		
 		System.out.println("Done!!");
-		
+		ConceptNetCache.getInstance().persist();
 		/************************************
 		 * testing model
 		 * 1. without smoothing

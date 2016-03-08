@@ -25,8 +25,8 @@ public class PartWholeTypeCue implements IFeatureExtractor {
 		type B , type C disjoint 
 
 	   case 2: 
-		type B is A type A
-		type C is A type A
+		type B is  type A
+		type C is  type A
 		type B not eq type C
 
 	   case 3:

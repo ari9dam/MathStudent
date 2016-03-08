@@ -6,6 +6,7 @@ package nlp.app.math.core.features;
 import java.util.List;
 import java.util.Map;
 
+import edu.asu.nlu.common.ds.AnnotatedSentence;
 import edu.stanford.nlp.ling.CoreLabel;
 import nlp.app.math.core.ChangeConcept;
 import nlp.app.math.core.IMathConcept;
@@ -30,7 +31,7 @@ public class ChangeLossQueue  implements IFeatureExtractor{
 		IMathConcept world = sample.getWorld(y);
 		VerbPolarityHelper vhelper = VerbPolarityHelper.getInstance();
 		
-		if(y==268)
+		if(y==30)
 			System.out.print("");
 		if(world instanceof ChangeConcept){
 			boolean lossCue = false;
@@ -48,7 +49,9 @@ public class ChangeLossQueue  implements IFeatureExtractor{
 						return;
 					}					
 					
-					polarity += vhelper.getPolarity(label.lemma());
+					AnnotatedSentence sen = rep.getAnnotatedSentences().get(q.getSentenceId()-1);
+					polarity += vhelper.getPolarity(sen.getFullLemma(label));
+
 				}
 				
 				if(q.isUnknown()){
@@ -65,7 +68,13 @@ public class ChangeLossQueue  implements IFeatureExtractor{
 				
 				String id = end.getUniqueId() + q.getUniqueId();
 				double subjMatch = featureMap.get("f_subjmatch"+id);
-				double typeMatch = featureMap.get("f_sameType"+id);
+				if(subjMatch<0.1&& !chc.getStart().isDefault()){
+					String id2 = chc.getStart().getUniqueId()+ q.getUniqueId();
+					subjMatch+= featureMap.get("f_subjmatch"+id2);
+				}
+				double typeMatch = featureMap.get("f_sameType"+id)+ featureMap.get("f_subType"+id) + 
+						featureMap.get("f_subType"+q.getUniqueId()+end.getUniqueId()) ;
+				
 				if(typeMatch<0.5){
 					featureMap.put(fName1, 1.0);
 				}

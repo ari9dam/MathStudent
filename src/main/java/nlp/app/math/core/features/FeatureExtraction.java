@@ -33,6 +33,9 @@ public class FeatureExtraction {
 		this.featureExtractors.add(new PartWholeVerbMatchCue());
 		this.featureExtractors.add(new PartWholeTypeCue());
 		this.featureExtractors.add(new PartWholePropertyCue());
+		this.featureExtractors.add(new PartWholeTmodQue());
+		this.featureExtractors.add(new PartWholeNmodCue());
+		this.featureExtractors.add(new PartWholeGenericQue());
 		this.featureExtractors.add(new ChangeStratCue());
 		this.featureExtractors.add(new ChangeEndQue());
 		this.featureExtractors.add(new ChangeGainQue());
@@ -41,8 +44,8 @@ public class FeatureExtraction {
 		
 		this.verbPolarityMap = new HashMap<String, Double>();
 		this.verbPolarityMap.putAll(verbPolarityMap);
-		;
-		// this.verbPolarityMap.put("verb_give", 2.0);
+		
+		
 	}
 
 	public Map<String, Double> getFeatureMap(ProblemRepresentation rep, MathSample sample, int y) {

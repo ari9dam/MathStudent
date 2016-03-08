@@ -91,7 +91,15 @@ public class TypeDetecter {
 				}
 			}
 			*/
-			
+			if(type.isEmpty()){
+				// look for $
+				int start = token.index()-1;
+				if(s.hasToken(start)&&s.getLemma(start).equalsIgnoreCase("$")){
+					type.add(s.getToken(start));
+				}else if(s.hasToken(start-1)&&s.getLemma(start-1).equalsIgnoreCase("$")){
+					type.add(s.getToken(start-1));
+				}
+			}
 			
 		}catch(RuntimeException e){
 			throw e;

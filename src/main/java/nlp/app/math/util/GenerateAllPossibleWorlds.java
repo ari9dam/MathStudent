@@ -45,16 +45,24 @@ public class GenerateAllPossibleWorlds {
 			List<Quantity> subset = it.next();
 			if(subset.isEmpty())
 				continue;
-
-			PartWholeConcept cb = new PartWholeConcept(whole, subset);
-			sample.addWorld(cb);
+			boolean hasUnknown = false;
+			if(whole.isUnknown())
+				hasUnknown = true;
+			for(Quantity q: subset){
+				if(q.isUnknown())
+					hasUnknown = true;
+			}
+			if(hasUnknown){
+				PartWholeConcept cb = new PartWholeConcept(whole, subset);
+				sample.addWorld(cb);
+			}
 		}
 	}
 
 	public void generateChangeWorlds(MathSample sample){
 		List<Quantity> quantites = sample.getQuantities();
 		List<Quantity> change = new ArrayList<Quantity>();
-		
+
 		// possible n(n-1)*(3^(n-2) -1)/2
 		for(Quantity start: quantites){
 			for(Quantity end: quantites){
@@ -98,8 +106,23 @@ public class GenerateAllPossibleWorlds {
 						if(gain.size()+loss.size()<2)
 							continue;
 					}
-					ChangeConcept c = new ChangeConcept(start,end, gain, loss);
-					sample.addWorld(c);
+
+					boolean hasUnknown = false;
+					if(start.isUnknown()||end.isUnknown())
+						hasUnknown = true;
+					for(Quantity q: gain){
+						if(q.isUnknown())
+							hasUnknown = true;
+					}
+
+					for(Quantity q: loss){
+						if(q.isUnknown())
+							hasUnknown = true;
+					}
+					if(hasUnknown){
+						ChangeConcept c = new ChangeConcept(start,end, gain, loss);
+						sample.addWorld(c);
+					}
 				}
 			}
 		}
