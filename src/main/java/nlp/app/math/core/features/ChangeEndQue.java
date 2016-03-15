@@ -27,7 +27,7 @@ public class ChangeEndQue implements IFeatureExtractor {
 			Map<String, Double> aggregatefeatureMap, Map<String, Double> featureMap) {
 		featureMap.put(fName, 0.0);
 		featureMap.put(fName1, 0.0);
-		if(y==28)
+		if(y==28||y==48)
 			System.out.print("");
 		IMathConcept world = sample.getWorld(y);
 
@@ -52,7 +52,7 @@ public class ChangeEndQue implements IFeatureExtractor {
 					if(!"vbn".equalsIgnoreCase(label.get(PartOfSpeechAnnotation.class)) && 
 							!"vbd".equalsIgnoreCase(label.get(PartOfSpeechAnnotation.class))){
 						presentPossesiveVerb = true;
-						if(label.lemma().equalsIgnoreCase("be"))
+						if(!end.hasNonBeVerb())
 							onlybe = true;
 					}
 				}
@@ -61,6 +61,12 @@ public class ChangeEndQue implements IFeatureExtractor {
 				return;
 			
 			if(!chc.getStart().isDefault()){
+				if(!chc.getStart().isUnknown() && !end.isUnknown()){
+					if(chc.getStart().getDoubleValue() < end.getDoubleValue()
+							&& chc.getGains().isEmpty())
+						return;
+					
+				}
 				String id = end.getUniqueId() + chc.getStart().getUniqueId();
 				double typeMatch = featureMap.get("f_sameType"+id);
 				double subjMatch = featureMap.get("f_subjmatch"+id);
@@ -69,11 +75,13 @@ public class ChangeEndQue implements IFeatureExtractor {
 					prepInMatch = featureMap.get("f_prep_inmatch"+id);
 				}
 				
-				
+				  
 				if(typeMatch <0.5 || (subjMatch <0.5 & prepInMatch <0.5)){
 			
 					if(typeMatch>0.5
 							&& onlybe 
+							&& (chc.getStart().getAssociatedEntity("nsubj").isEmpty()||
+									end.getAssociatedEntity("nsubj").isEmpty())
 							&& end.getSentenceId()>=(rep.getAnnotatedSentences().size()-1)){
 						featureMap.put(fName1, 1.0);
 					}

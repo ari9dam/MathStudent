@@ -37,7 +37,8 @@ public class ChangeStratCue implements IFeatureExtractor{
 		IMathConcept world = sample.getWorld(y);
 		
 
-		
+		if(y==28||y==48)
+			System.out.print("");
 		if(world instanceof ChangeConcept){
 			
 			ChangeConcept chc = (ChangeConcept) world;

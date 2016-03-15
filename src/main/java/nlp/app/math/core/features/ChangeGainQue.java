@@ -30,7 +30,7 @@ public class ChangeGainQue implements IFeatureExtractor {
 		featureMap.put(fName1, 0.0);
 		IMathConcept world = sample.getWorld(y);
 		VerbPolarityHelper vhelper = VerbPolarityHelper.getInstance();
-		if(y==28)
+		if(y==28||y==48)
 			System.out.print("");
 		
 		if(world instanceof ChangeConcept){
@@ -70,7 +70,7 @@ public class ChangeGainQue implements IFeatureExtractor {
 				
 				
 				double subjMatch = featureMap.get("f_subjmatch"+id);
-				if(subjMatch<0.1&& !chc.getStart().isDefault()){
+				if(subjMatch<0.1&& !chc.getStart().isDefault() && end.getAssociatedEntity("nsubj").isEmpty()){
 					String id2 = chc.getStart().getUniqueId()+ q.getUniqueId();
 					subjMatch+= featureMap.get("f_subjmatch"+id2);
 				}
@@ -83,8 +83,7 @@ public class ChangeGainQue implements IFeatureExtractor {
 				if(typeMatch < 0.5 || (polarity <-0.5 && subjMatch > 0.5)
 						||(polarity > 0.5 && subjMatch < 0.5)
 						||(polarity<0.001 && polarity>-0.0002))
-					return;
-				
+					return;				
 			}
 
 			if(gainCue){

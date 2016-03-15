@@ -88,7 +88,7 @@ public class StructureTagger {
 							for(int i = token-1;i<token+3;i++){
 								sub += sen.getWord(i)+" ";
 							}
-							if(sub.matches("[hH]is [a-z]*? [a-z]*? him ")){
+							if(sub.matches("[hH]is [a-z]*? [a-z]*? him ")||sub.matches("[hH]is [a-z]*? borrowed .*")){
 								matched = true;
 
 								// find cluster ID

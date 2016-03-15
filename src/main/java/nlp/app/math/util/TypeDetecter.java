@@ -24,15 +24,18 @@ public class TypeDetecter {
 		boolean ccFound = false;
 		boolean hasNp = false;
 		boolean lookForAdjective = false;
+		boolean changedAdj = false;
 		ArrayList<CoreLabel> type = new ArrayList<CoreLabel>();
 		try{
+			String prev = "";
 			int tId = token.index()+1;
 			while(!stop && s.hasToken(tId)){
-				String pos = s.getPOS(tId);
+				String pos = s.getPOS(tId).toLowerCase();
 
 				if(POSUtil.isNoun(pos)){
 					if(!ccFound){
 						if(!hasNp ||(hasNp&&pos.equalsIgnoreCase("nns")))
+							prev = s.getLemma(tId);
 							type.add(s.getToken(tId));					
 						hasNp = true;
 					}else{
@@ -41,7 +44,7 @@ public class TypeDetecter {
 							continue;
 						}
 						//found a plural noun
-						if(pos.equalsIgnoreCase("nns")){
+						if(pos.startsWith("nns")||(pos.startsWith("nn")&&changedAdj)){
 							// if not present in the type add and stop
 							boolean match = false;
 							for(CoreLabel l : type){
@@ -53,18 +56,20 @@ public class TypeDetecter {
 							}
 							
 							if(!match){
-								stop = false;	
+								stop = false;
+								prev = s.getLemma(tId);
 								type.add(s.getToken(tId));
 							}
 						}
 					}
 				}else if(POSUtil.isNonComparativeAdj(pos)){
-					if(hasNp){
+					if(hasNp&&!wnh.isAntonym(s.getLemma(tId), prev)){
 						stop = true; // adj after noun "'games last' year"
 					}else if(!ccFound){
 						type.add(s.getToken(tId));
 					}else if(ccFound){
 						lookForAdjective = false;// not situations like 20 turnip and 30 watermelon
+						changedAdj = true;
 					}
 				}else if(POSUtil.isCC(pos)){
 					ccFound = true;

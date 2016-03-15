@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 import nlp.app.math.core.MathSample;
 import nlp.app.math.core.ProblemRepresentation;
+import nlp.app.math.util.ComparisionNonDiffCue;
 
 /**
  * @author Arindam
@@ -31,6 +32,7 @@ public class FeatureExtraction {
 		this.featureExtractors.add(new LocalPriors());
 		this.featureExtractors.add(new PartWholeSubjectCue());
 		this.featureExtractors.add(new PartWholeVerbMatchCue());
+		this.featureExtractors.add(new PartWholeLooseVerbMatchQue());
 		this.featureExtractors.add(new PartWholeTypeCue());
 		this.featureExtractors.add(new PartWholePropertyCue());
 		this.featureExtractors.add(new PartWholeTmodQue());
@@ -41,6 +43,8 @@ public class FeatureExtraction {
 		this.featureExtractors.add(new ChangeGainQue());
 		this.featureExtractors.add(new ChangeLossQueue());
 		this.featureExtractors.add(new ChangeCueDerived());
+		this.featureExtractors.add(new ComparisionConceptDiffQue());
+		this.featureExtractors.add(new ComparisionNonDiffCue());
 		
 		this.verbPolarityMap = new HashMap<String, Double>();
 		this.verbPolarityMap.putAll(verbPolarityMap);

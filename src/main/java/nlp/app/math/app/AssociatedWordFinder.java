@@ -5,6 +5,7 @@ package nlp.app.math.app;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -196,12 +197,20 @@ public class AssociatedWordFinder {
 				
 
 				for(IndexedWord index: nn){
-					ret.add(index.index());
+					if(POSUtil.isNoun(s.getPOS(index.index())))
+						ret.add(index.index());
 				}
 				
 				ret.removeAll(typeIds);
 				ret.removeAll(verb);
 
+			}
+			
+			Iterator<Integer> it = ret.iterator();
+			while(it.hasNext()){
+				String pos = s.getPOS(it.next()).toLowerCase();
+				if(pos.startsWith("rb")||pos.startsWith("jj"))
+					it.remove();
 			}
 		}
 		return ret;

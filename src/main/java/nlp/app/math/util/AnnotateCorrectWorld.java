@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import nlp.app.math.core.ChangeConcept;
+import nlp.app.math.core.ComparisionConcept;
 import nlp.app.math.core.IMathConcept;
 import nlp.app.math.core.MathSample;
 import nlp.app.math.core.PartWholeConcept;
@@ -58,9 +59,79 @@ public class AnnotateCorrectWorld {
 			c = this.createPartWhole(object,irep);
 		}else if(type.equalsIgnoreCase("CH")){
 			c = this.createChange(object, irep);
+		}else if(type.equalsIgnoreCase("CP")){
+			c = this.createCompare(object, irep);
 		}else{
 			System.out.println("wrong type\n"+object);
 		}
+		return c;
+	}
+
+	/**
+	 * @param object
+	 * @param irep
+	 * @return
+	 */
+	private IMathConcept createCompare(JSONObject object, ProblemRepresentation irep) {
+		Quantity large=null;
+		Quantity small=null;
+		Quantity diff=null;
+		
+		for(String key: object.keySet()){
+			if(key.equalsIgnoreCase("type"))
+				continue;
+
+			JSONObject entry = object.getJSONObject(key);
+			String name = entry.getString("name");
+			if(name.equalsIgnoreCase("large")){
+				String value = entry.getString("value");
+				if(value.equalsIgnoreCase("X")){
+					large = irep.getUnknownQuantities().get(0);
+				}else{
+					for(Quantity q: irep.getQuantities()){
+						if(q.isUnknown())
+							continue;
+						if(q.getValue().equalsIgnoreCase(value)){
+							large  = q;
+							break;
+						}
+
+					}
+				}
+			}else if(name.equalsIgnoreCase("small")){
+				String value = entry.getString("value");
+				if(value.equalsIgnoreCase("X")){
+					small = irep.getUnknownQuantities().get(0);
+				}else{
+					for(Quantity q: irep.getQuantities()){
+						if(q.isUnknown())
+							continue;
+						if(q.getValue().equalsIgnoreCase(value)){
+							small  = q;
+							break;
+						}
+
+					}
+				}
+			}else if(name.equalsIgnoreCase("diff")){
+				String value = entry.getString("value");
+				if(value.equalsIgnoreCase("X")){
+					diff = irep.getUnknownQuantities().get(0);
+				}else{
+					for(Quantity q: irep.getQuantities()){
+						if(q.isUnknown())
+							continue;
+						if(q.getValue().equalsIgnoreCase(value)){
+							diff  = q;
+							break;
+						}
+
+					}
+				}
+			}
+		}
+		
+		ComparisionConcept c = new ComparisionConcept(large, small, diff); 
 		return c;
 	}
 

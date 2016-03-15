@@ -22,12 +22,12 @@ public class TestMain {
 		String prefix="C:\\Users\\Arindam\\Dropbox\\Math Challenge\\sample_questions";
 		String file = "C:\\Users\\Arindam\\Dropbox\\Math Challenge\\Math_Word_DS_Kushman\\ALL\\arith_me.json";
 		String jsonString = FileUtils.readFileToString(new 
-				File(prefix+"_test.json"));//File(file));//
+				File(file));//File(prefix+"_test.json"));//
 		JSONArray testProblems = new JSONArray(jsonString);
 		ArrayList<String> features = new ArrayList<String>(FileUtils.readLines(
 				new File(prefix+"_features.txt")));
 		//Solver solver1 = new Solver(false, prefix+"_model_unsmoothed.ser", features);
-		Solver solver2 = new Solver(false, prefix+"_model_smoothed_0_01.ser", features);
+		//Solver solver2 = new Solver(false, prefix+"_model_smoothed_0_01.ser", features);
 		Solver solver3 = new Solver(false, prefix+"_model_smoothed_0_001.ser", features);
 		int correct1=0,total=0,correct2=0,exp=0;
 		List<String> incorrect = new LinkedList<String>();
@@ -66,7 +66,7 @@ public class TestMain {
 						correct2++;
 					}else{
 						//System.out.println("incorrect");
-						System.out.println(res3);
+						//System.out.println(res3);
 						incorrect.add(res3.getText());
 					}
 				}
@@ -78,8 +78,8 @@ public class TestMain {
 			}				
 		}
 		System.out.println("Total ="+total+", correct1 = "+correct1+", correct2 = "+correct2+",exception="+exp);
-		//FileUtils.writeLines(new File("incorrect.txt"), incorrect);
-		//FileUtils.writeLines(new File("exception.txt"), excep);
+		FileUtils.writeLines(new File("incorrect.txt"), incorrect);
+		FileUtils.writeLines(new File("exception.txt"), excep);
 		ConceptNetCache.getInstance().persist();
 	}
 }

@@ -57,13 +57,15 @@ public class TypeRelatedFeatures{
 				if(tQ1.size()==1&& tQ2.size()==1 ){
 					boolean dollar = false;
 					for(String l: tQ1){
-						if(l.equalsIgnoreCase("$")||l.equalsIgnoreCase("money")|| l.equalsIgnoreCase("dollar")){
+						if(l.equalsIgnoreCase("$")||l.equalsIgnoreCase("money")|| 
+								l.equalsIgnoreCase("dollar")||l.equalsIgnoreCase("yen")){
 							dollar = true;
 						}
 					}
 					if(dollar){
 						for(String l: tQ2){
-							if(l.equalsIgnoreCase("$")||l.equalsIgnoreCase("money")||l.equalsIgnoreCase("dollar")){
+							if(l.equalsIgnoreCase("$")||l.equalsIgnoreCase("money")
+									||l.equalsIgnoreCase("dollar")||l.equalsIgnoreCase("yen")){
 								dollar = true;
 							}
 						}

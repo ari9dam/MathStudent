@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import nlp.app.math.core.ChangeConcept;
+import nlp.app.math.core.ComparisionConcept;
 import nlp.app.math.core.MathSample;
 import nlp.app.math.core.PartWholeConcept;
 import nlp.app.math.core.Quantity;
@@ -24,8 +25,36 @@ public class GenerateAllPossibleWorlds {
 	public void generate(MathSample sample){
 		generatePartWholes(sample);
 		generateChangeWorlds(sample);
+		generateComparisionWorlds(sample);
 
 	}
+	/**
+	 * @param sample
+	 */
+	private void generateComparisionWorlds(MathSample sample) {
+		List<Quantity> quantites = sample.getQuantities();
+		for(Quantity lq: quantites){
+			for(Quantity sq: quantites){
+				if(lq==sq){
+					continue;
+				}
+
+				for(Quantity diff: quantites){
+					if(diff!=lq & diff!=sq){
+						if(diff.isUnknown()|| lq.isUnknown()
+								||sq.isUnknown()){
+							ComparisionConcept c = 
+									new ComparisionConcept(lq,sq,diff);
+							sample.addWorld(c);
+						}
+					}
+				}
+
+			}
+		}
+
+	}
+
 	public void generatePartWholes(MathSample sample){
 		List<Quantity> quantites = sample.getQuantities();
 		List<Quantity> parts = new ArrayList<Quantity>();

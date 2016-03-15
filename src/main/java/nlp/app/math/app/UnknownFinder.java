@@ -175,7 +175,8 @@ public class UnknownFinder {
 				/***
 				 * add what also in condition
 				 */
-				if(s.getRawSentence().toLowerCase().contains("how")){
+				if(s.getRawSentence().toLowerCase().contains("how")||
+						s.getRawSentence().toLowerCase().contains("what")){
 
 					CoreLabel targetToken = null;
 					CoreLabel q = null;
@@ -192,11 +193,12 @@ public class UnknownFinder {
 							q = token;
 						}else if(s.getLemma(token).equalsIgnoreCase("many")){
 							many = true;
-						}else if(s.getLemma(token).equalsIgnoreCase("much")){
+						}else if(how && !s.getLemma(token).equalsIgnoreCase("many")){
 							much = true;
 						}else if(s.getLemma(token).equalsIgnoreCase("what")){
 							what = true;
-						}else if(how||what){
+							q = token;
+						}else if(what){
 							break;
 						}
 						targetToken = token;
@@ -207,9 +209,11 @@ public class UnknownFinder {
 					quantity.setType(this.typeDetecter.findType(targetToken, s, 
 							prevType));
 					ArrayList<CoreLabel> type = quantity.getType();
-
+					
+					
 					typeIds.add(q.index());
-					typeIds.add(targetToken.index()-1);//how
+					if(how)
+						typeIds.add(targetToken.index()-1);//how
 					for(CoreLabel l: type)
 						typeIds.add(l.index());
 
