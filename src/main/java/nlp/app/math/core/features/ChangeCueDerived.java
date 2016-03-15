@@ -24,6 +24,7 @@ public class ChangeCueDerived implements IFeatureExtractor {
 	private String fName5 = "f_derived_change_priorstart";
 	private String fName7 = "f_derived_change_explicitstart";
 	private String fName8 = "f_derived_change_explicitstart_mayend";
+	
 	@Override
 	public void addFeatures(ProblemRepresentation rep, MathSample sample, int y,
 			Map<String, Double> aggregatefeatureMap, Map<String, Double> featureMap) {
@@ -35,6 +36,7 @@ public class ChangeCueDerived implements IFeatureExtractor {
 		aggregatefeatureMap.put(fName5, 0.0);
 		aggregatefeatureMap.put(fName6, 0.0);
 		aggregatefeatureMap.put(fName7, 0.0);
+		aggregatefeatureMap.put(fName8, 0.0);
 		IMathConcept world = sample.getWorld(y);
 
 		if(world instanceof ChangeConcept){

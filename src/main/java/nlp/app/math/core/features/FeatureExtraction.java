@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 
 import nlp.app.math.core.MathSample;
 import nlp.app.math.core.ProblemRepresentation;
-import nlp.app.math.util.ComparisionNonDiffCue;
 
 /**
  * @author Arindam

@@ -1,7 +1,7 @@
 /**ComparisionNonDiffCue.java
  * 10:18:01 PM @author Arindam
  */
-package nlp.app.math.util;
+package nlp.app.math.core.features;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +13,6 @@ import nlp.app.math.core.IMathConcept;
 import nlp.app.math.core.MathSample;
 import nlp.app.math.core.ProblemRepresentation;
 import nlp.app.math.core.Quantity;
-import nlp.app.math.core.features.IFeatureExtractor;
 
 /**
  * @author Arindam

@@ -67,6 +67,7 @@ public class ChangeEndQue implements IFeatureExtractor {
 						return;
 					
 				}
+				
 				String id = end.getUniqueId() + chc.getStart().getUniqueId();
 				double typeMatch = featureMap.get("f_sameType"+id);
 				double subjMatch = featureMap.get("f_subjmatch"+id);

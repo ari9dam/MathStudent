@@ -74,6 +74,7 @@ public class ChangeGainQue implements IFeatureExtractor {
 					String id2 = chc.getStart().getUniqueId()+ q.getUniqueId();
 					subjMatch+= featureMap.get("f_subjmatch"+id2);
 				}
+				
 				double typeMatch = featureMap.get("f_sameType"+id)+ featureMap.get("f_subType"+id) + 
 						featureMap.get("f_subType"+q.getUniqueId()+end.getUniqueId()) ;
 				if(typeMatch<0.5){
