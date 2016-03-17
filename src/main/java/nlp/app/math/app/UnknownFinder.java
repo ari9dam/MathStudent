@@ -108,6 +108,35 @@ public class UnknownFinder {
 					quantity.setContext("xcomp", xcomp, s);
 					quantity.setContext("dep", dep, s);
 					
+					boolean isPart = false;
+					if(s.hasToken(token.index()+1) && s.hasToken(token.index()+2)){
+						String lemma1 = s.getLemma(token.index()+1);
+						String lemma2 = s.getLemma(token.index()+2);
+						
+						if(POSUtil.isVerb(s.getPOS(token.index()+1)) || 
+								POSUtil.isVerb(s.getPOS(token.index()+2))){
+							if(lemma1.equalsIgnoreCase("be")|| lemma1.equalsIgnoreCase("has")
+									||lemma1.equalsIgnoreCase("have"))
+								isPart = true;
+							if(lemma2.equalsIgnoreCase("be")|| lemma2.equalsIgnoreCase("has")
+									||lemma2.equalsIgnoreCase("have"))
+								isPart = true;
+						}
+						if(lemma1.equalsIgnoreCase("of")&&lemma2.equalsIgnoreCase("they")){
+							isPart = true;
+						}
+					}
+					
+					if(isPart&&p.getNuberOfQuantities()>=2){
+						int id = p.getNuberOfQuantities();
+						
+						Quantity q = p.getQuantities().get(id-2);
+						quantity.setPart(true);
+						quantity.setPartOf(q);
+						
+						
+					}
+					
 					if(type.isEmpty()){
 						if(prevType==null){
 							int snid = 1;
@@ -154,8 +183,8 @@ public class UnknownFinder {
 					}
 					quantity.setType(type);
 					prevType = type;
-					System.out.println("Quantity"+ quantity.getValue()+":"
-							+ " "+ quantity.getType());
+					//System.out.println("Quantity"+ quantity.getValue()+":"
+						//	+ " "+ quantity.getType());
 
 				}
 			}
@@ -269,8 +298,8 @@ public class UnknownFinder {
 				quantity.setContext("xcomp", xcomp, s);
 				quantity.setContext("dep", dep, s);
 				
-				System.out.println("Quantity"+ quantity.getValue()+":"
-						+ " "+ quantity.getType());
+				//System.out.println("Quantity"+ quantity.getValue()+":"
+					//	+ " "+ quantity.getType());
 			}
 		}
 	}

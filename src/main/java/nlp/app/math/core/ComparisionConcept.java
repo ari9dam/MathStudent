@@ -3,6 +3,8 @@
  */
 package nlp.app.math.core;
 
+import org.json.JSONObject;
+
 /**
  * @author Arindam
  *
@@ -132,4 +134,33 @@ public class ComparisionConcept implements IMathConcept{
 				+ ", difference=" + difference + "]";
 	}
 	
+	public JSONObject toJSON(){
+		JSONObject ret = new JSONObject();
+		JSONObject arg1 = new JSONObject();
+		JSONObject arg2 = new JSONObject();
+		JSONObject arg3 = new JSONObject();
+		
+		arg1.put("name", "large");
+		if(this.largerQuantity.isUnknown())
+			arg1.put("value", "X");
+		else arg1.put("value", this.largerQuantity.getValue());
+		
+		arg2.put("name", "diff");
+		if(this.difference.isUnknown())
+			arg2.put("value", "X");
+		else arg2.put("value", this.difference.getValue());
+		
+		arg3.put("name", "small");
+		if(this.smallerQuantity.isUnknown())
+			arg3.put("value", "X");
+		else arg3.put("value", this.smallerQuantity.getValue());
+		
+		
+		ret.put("arg1", arg1);
+		ret.put("arg2", arg2);
+		ret.put("arg3", arg3);
+		ret.put("type", "CP");
+		
+		return ret;
+	}
 }

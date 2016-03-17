@@ -36,7 +36,11 @@ public class PartWholeLooseVerbMatchQue implements IFeatureExtractor{
 
 			if(ppw.getParts().size()<2)
 				return;
-
+			
+			double partcue = featureMap.get("f_PartIsWithWhole");
+			if(partcue>0.5)
+				return; 
+			
 			Quantity whole = ppw.getWhole();
 			double value = ppw.getParts().size()*1.0;
 			

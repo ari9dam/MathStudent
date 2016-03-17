@@ -3,8 +3,10 @@
  */
 package nlp.app.math.util;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -77,6 +79,7 @@ public class AnnotateCorrectWorld {
 		Quantity small=null;
 		Quantity diff=null;
 		
+		Map<String, Boolean> used = new HashMap<String, Boolean>();
 		for(String key: object.keySet()){
 			if(key.equalsIgnoreCase("type"))
 				continue;
@@ -89,10 +92,11 @@ public class AnnotateCorrectWorld {
 					large = irep.getUnknownQuantities().get(0);
 				}else{
 					for(Quantity q: irep.getQuantities()){
-						if(q.isUnknown())
+						if(q.isUnknown()||used.containsKey(q.getUniqueId()))
 							continue;
 						if(q.getValue().equalsIgnoreCase(value)){
 							large  = q;
+							used.put(q.getUniqueId(), true);
 							break;
 						}
 
@@ -104,10 +108,11 @@ public class AnnotateCorrectWorld {
 					small = irep.getUnknownQuantities().get(0);
 				}else{
 					for(Quantity q: irep.getQuantities()){
-						if(q.isUnknown())
+						if(q.isUnknown()||used.containsKey(q.getUniqueId()))
 							continue;
 						if(q.getValue().equalsIgnoreCase(value)){
 							small  = q;
+							used.put(q.getUniqueId(), true);
 							break;
 						}
 
@@ -119,10 +124,11 @@ public class AnnotateCorrectWorld {
 					diff = irep.getUnknownQuantities().get(0);
 				}else{
 					for(Quantity q: irep.getQuantities()){
-						if(q.isUnknown())
+						if(q.isUnknown()||used.containsKey(q.getUniqueId()))
 							continue;
 						if(q.getValue().equalsIgnoreCase(value)){
 							diff  = q;
+							used.put(q.getUniqueId(), true);
 							break;
 						}
 
@@ -139,6 +145,7 @@ public class AnnotateCorrectWorld {
 		Quantity whole = null;
 		Quantity part = null;
 		PartWholeConcept  ppw = new PartWholeConcept();
+		Map<String, Boolean> used = new HashMap<String, Boolean>();
 		for(String key: object.keySet()){
 			if(key.equalsIgnoreCase("type"))
 				continue;
@@ -151,10 +158,11 @@ public class AnnotateCorrectWorld {
 					whole = irep.getUnknownQuantities().get(0);
 				}else{
 					for(Quantity q: irep.getQuantities()){
-						if(q.isUnknown())
+						if(q.isUnknown()||used.containsKey(q.getUniqueId()))
 							continue;
 						if(q.getValue().equalsIgnoreCase(value)){
 							whole  = q;
+							used.put(q.getUniqueId(), true);
 							break;
 						}
 
@@ -169,10 +177,11 @@ public class AnnotateCorrectWorld {
 						part = irep.getUnknownQuantities().get(0);
 					}else{
 						for(Quantity q: irep.getQuantities()){
-							if(q.isUnknown())
+							if(q.isUnknown()||used.containsKey(q.getUniqueId()))
 								continue;
 							if(q.getValue().equalsIgnoreCase(value)){
 								part  = q;
+								used.put(q.getUniqueId(), true);
 								break;
 							}
 
@@ -191,6 +200,7 @@ public class AnnotateCorrectWorld {
 		Quantity end=null;
 		List<Quantity> loss = new LinkedList<Quantity>();
 		List<Quantity> gain = new LinkedList<Quantity>();
+		Map<String, Boolean> used = new HashMap<String, Boolean>();
 
 		for(String key: object.keySet()){
 			if(key.equalsIgnoreCase("type"))
@@ -207,8 +217,11 @@ public class AnnotateCorrectWorld {
 					start.setDefault(true);
 				}else{
 					for(Quantity q: irep.getQuantities()){
+						if(used.containsKey(q.getUniqueId()))
+							continue;
 						if(q.getValue().equalsIgnoreCase(value)){
 							start  = q;
+							used.put(q.getUniqueId(), true);
 							break;
 						}
 					}
@@ -219,8 +232,12 @@ public class AnnotateCorrectWorld {
 					end = irep.getUnknownQuantities().get(0);
 				}else{
 					for(Quantity q: irep.getQuantities()){
+						if(used.containsKey(q.getUniqueId()))
+							continue;
+						
 						if(q.getValue().equalsIgnoreCase(value)){
 							end  = q;
+							used.put(q.getUniqueId(), true);
 							break;
 						}
 					}
@@ -233,8 +250,12 @@ public class AnnotateCorrectWorld {
 						loss.add(irep.getUnknownQuantities().get(0));
 					}else{
 						for(Quantity q: irep.getQuantities()){
+							if(used.containsKey(q.getUniqueId()))
+								continue;
+							
 							if(q.getValue().equalsIgnoreCase(value)){
 								loss.add(q);
+								used.put(q.getUniqueId(), true);
 								break;
 							}
 						}
@@ -248,8 +269,12 @@ public class AnnotateCorrectWorld {
 						gain.add(irep.getUnknownQuantities().get(0));
 					}else{
 						for(Quantity q: irep.getQuantities()){
+							if(used.containsKey(q.getUniqueId()))
+								continue;
+							
 							if(q.getValue().equalsIgnoreCase(value)){
 								gain.add(q);
+								used.put(q.getUniqueId(), true);
 								break;
 							}
 						}

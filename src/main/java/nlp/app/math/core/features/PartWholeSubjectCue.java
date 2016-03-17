@@ -32,6 +32,10 @@ public class PartWholeSubjectCue implements IFeatureExtractor{
 			Quantity whole = ppw.getWhole();
 			if(ppw.getParts().size()<2)
 				return;
+			double partcue = featureMap.get("f_PartIsWithWhole");
+			if(partcue>0.5)
+				return; 
+			
 			double value =ppw.getParts().size();
 			for(Quantity part : ppw.getParts()){
 				String id = whole.getUniqueId() + part.getUniqueId();

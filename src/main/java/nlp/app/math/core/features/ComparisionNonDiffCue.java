@@ -85,8 +85,7 @@ public class ComparisionNonDiffCue  implements IFeatureExtractor {
 		
 		
 		if(marker&&before)
-			aggregatefeatureMap.put(fName, 3.0);
-		
+			aggregatefeatureMap.put(fName, 3.0);		
 	}
 
 }

@@ -83,7 +83,7 @@ public class ChangeStratCue implements IFeatureExtractor{
 				
 				String id = chc.getEnd().getUniqueId() + start.getUniqueId();
 				double typeMatch = featureMap.get("f_sameType"+id);
-				if(typeMatch<0.5)
+				if(typeMatch<0.5 || start.isPart())
 					return;
 				
 				//start implicit cue : past possessive verb
@@ -139,6 +139,12 @@ public class ChangeStratCue implements IFeatureExtractor{
 					}
 				}
 				
+				List<CoreLabel> advmod = start.getAssociatedEntity("advmod");
+				for(CoreLabel label: xcomp){
+					if(label.lemma().equalsIgnoreCase("originally")){
+						explicitcue = true;
+					}
+				}
 				if(explicitcue){
 					featureMap.put(fName2, 1.0);
 				}

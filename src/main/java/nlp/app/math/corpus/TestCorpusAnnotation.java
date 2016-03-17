@@ -1,7 +1,6 @@
 package nlp.app.math.corpus;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,6 +15,7 @@ import org.json.JSONObject;
 import nlp.app.math.app.EquationSolver;
 import nlp.app.math.app.FormEquations;
 import nlp.app.math.core.ChangeConcept;
+import nlp.app.math.core.ComparisionConcept;
 import nlp.app.math.core.IMathConcept;
 import nlp.app.math.core.PartWholeConcept;
 import nlp.app.math.core.ProblemRepresentation;
@@ -26,53 +26,62 @@ import nlp.app.math.core.Quantity;
  *
  */
 public class TestCorpusAnnotation {
-	public void test() throws IOException{
-		FormEquations equationGenerator = new FormEquations();
-		EquationSolver equationSolver = new EquationSolver();
-		String jsonString = FileUtils.readFileToString(new 
-				File("C:\\Users\\Arindam\\Dropbox\\Math Challenge\\test_math.json"));
+	FormEquations equationGenerator = new FormEquations();
+	EquationSolver equationSolver = new EquationSolver();
+
+	public void test() throws Exception{
+
+		String jsonString = FileUtils.readFileToString(new File("arith_addsub_annotated.json"));
 		JSONArray problems = new JSONArray(jsonString);
 
 		for(Object obj: problems){
 			JSONObject prob = (JSONObject)obj;
-			String t = prob.getString("sQuestion");
-			JSONArray s = prob.getJSONArray("lSolutions");
-			JSONArray concepts = prob.getJSONArray("semantics");
-			if(concepts.length()>1)
-				continue;
-			ProblemRepresentation irep = new ProblemRepresentation(t);
-			for(IMathConcept c: createConceptsFromJSON(concepts,irep)){
-				irep.addMathConcept(c);
-			}
-			try{
-				Map<String, String> result = equationSolver.solve(equationGenerator.formEquations(irep), 
-						irep.getUnknowns());
-				if(result.size()==1){
-					for(Entry<String, String> entry: result.entrySet()){
-						if(Double.parseDouble(entry.getValue()) == Double.parseDouble(s.getString(0))){
-							//correct
-						}else{
-							System.out.println("Solution mismatch");
-							System.out.println(obj);
-						}
-					}
-				}else{
-					System.out.println("More than one Solution");
-					System.out.println(obj);
-				}
-			}catch(Exception e){
-				System.out.println(e);
-				System.out.println(prob);
-			}
+			boolean result = check(prob);
+			if(!result)
+				System.out.println(obj);
 		}
 	}
 
+	public boolean check(JSONObject prob) throws Exception{
+
+		String t = prob.getString("sQuestion");
+		JSONArray s = prob.getJSONArray("lSolutions");
+		JSONArray concepts = prob.getJSONArray("semantics");
+		if(concepts.length()>1)
+			return false;
+
+		ProblemRepresentation irep = new ProblemRepresentation(t);
+		try{
+			for(IMathConcept c: createConceptsFromJSON(concepts,irep)){
+				irep.addMathConcept(c);
+			}
+
+			Map<String, String> result = equationSolver.solve(equationGenerator.formEquations(irep), 
+					irep.getUnknowns());
+			if(result.size()==1){
+				for(Entry<String, String> entry: result.entrySet()){
+					if(Double.parseDouble(entry.getValue()) == Double.parseDouble(s.getString(0))){
+						return true;
+					}else{
+						return false;
+					}
+				}
+			}else{
+				return false;
+			}
+		}catch(Exception e){
+			System.out.println(prob);
+			throw e;
+		}
+
+		return false;
+	}
 	private Set<IMathConcept> createConceptsFromJSON(JSONArray concepts, 
 			ProblemRepresentation irep){
 		Set<IMathConcept> out = new HashSet<IMathConcept>();
 		for(Object obj : concepts){
 			JSONObject object = (JSONObject)obj;
-			
+
 			IMathConcept c = createConceptFromJSON(object,irep);
 			if(c!=null)
 				out.add(c);
@@ -89,6 +98,8 @@ public class TestCorpusAnnotation {
 			c = this.createPartWhole(object,irep);
 		}else if(type.equalsIgnoreCase("CH")){
 			c = this.createChange(object, irep);
+		}else if(type.equalsIgnoreCase("CP")){
+			c = this.createComparision(object, irep);
 		}else{
 			System.out.println("wrong type\n"+object);
 		}
@@ -184,8 +195,48 @@ public class TestCorpusAnnotation {
 		ChangeConcept  ch = new ChangeConcept(start, end, gain, loss);
 		return ch;
 	}
+	
+	private IMathConcept createComparision(JSONObject object, ProblemRepresentation irep){
+		int i=0;
+		Quantity large=null;
+		Quantity small=null;
+		Quantity diff = null;
 
-	public static void main(String args[]) throws IOException{
+		for(String key: object.keySet()){
+			if(key.equalsIgnoreCase("type"))
+				continue;
+
+			JSONObject entry = object.getJSONObject(key);
+			String name = entry.getString("name");
+			if(name.equalsIgnoreCase("large")){
+				String value = entry.getString("value");
+				if(value.equalsIgnoreCase("X")){
+					large = irep.addUnknown(1, ++i);
+				}else{
+					large = irep.addConstantQuantity(value, 1, ++i);
+				}
+			}if(name.equalsIgnoreCase("small")){
+				String value = entry.getString("value");
+				if(value.equalsIgnoreCase("X")){
+					small = irep.addUnknown(1, ++i);
+				}else{
+					small = irep.addConstantQuantity(value, 1, ++i);
+				}
+			}else if(name.equalsIgnoreCase("diff")){
+				String value = entry.getString("value");
+				if(value.equalsIgnoreCase("X")){
+					diff = irep.addUnknown(1, ++i);
+				}else{
+					diff = irep.addConstantQuantity(value, 1, ++i);
+				}
+			}
+		}
+		ComparisionConcept  ch = new ComparisionConcept(large, small, diff);
+		return ch;
+	}
+
+
+	public static void main(String args[]) throws Exception{
 		TestCorpusAnnotation test  = new TestCorpusAnnotation();
 		test.test();
 	}

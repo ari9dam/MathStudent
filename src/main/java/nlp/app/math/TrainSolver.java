@@ -38,13 +38,13 @@ public class TrainSolver {
 	private UnknownFinder unknownFinder;
 	private StructureTagger structureTagger;
 	private boolean debug;
-	 
+
 
 	public TrainSolver(boolean debug){
 		this.debug = debug;
 		this.unknownFinder = new UnknownFinder(debug);
 		this.structureTagger = new StructureTagger(true);
-		
+
 	}
 
 	public TrainSolver(){
@@ -64,7 +64,7 @@ public class TrainSolver {
 		List<MathSample> mathSamples = new LinkedList<MathSample>();
 		for(Object obj: problems){
 			JSONObject object = (JSONObject) obj;	
-			
+
 			/**
 			 * Sentence processing starts here 
 			 */
@@ -77,7 +77,7 @@ public class TrainSolver {
 			 * dependency parsing, co-reference resolution
 			 */
 			this.structureTagger.process(irep);
-			
+
 
 			/*
 			 * detect the unknonwn(s) in the problem
@@ -87,31 +87,31 @@ public class TrainSolver {
 			 */
 			this.unknownFinder.findUnknowns(irep);
 			/***ends**/
-			
+
 			/*****************************************************
 			 * Creating Math sample
 			 * ***************************************************/
-			
+
 			//###################################
 			//###create an empty math sample#####
 			//###################################
 			MathSample sample = new MathSample(object.get("iIndex").toString());
-			
+
 			/*
 			 * Determine the fluents
 			 */
-			
+
 			sample.setQuantities(irep.getQuantities());
 			/*
 			 * Generate all y's
 			 */
 			gw.generate(sample);
-			
+
 			/*
 			 * Extract Correct Y
 			 */
 			fy.annotate(sample,object.getJSONArray("semantics"),irep);
-			
+
 			/*##############################
 			 * Get feature map for each y ##
 			 * Add feature map to sample ###
@@ -127,7 +127,7 @@ public class TrainSolver {
 					verbPolarityMap.put(entry.getKey(), entry.getValue());
 				}
 			}
-			
+
 			if(this.debug)
 				System.out.println(sample);
 			/*
@@ -149,21 +149,17 @@ public class TrainSolver {
 		ArrayList<String> features = new ArrayList<String>();
 		ConvertMathSamples converter = new ConvertMathSamples();
 		converter.toSamples(mathSamples, trainingData, features);
-		
+
 		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(prefix+"_training_data.ser"));
 		oos.writeObject(trainingData);
 		oos.close();
-		
+
 		ObjectOutputStream oof = new ObjectOutputStream(new FileOutputStream(prefix+"_features.ser"));
 		oof.writeObject(features);
 		oof.close();
-		
-		ObjectOutputStream oov = new ObjectOutputStream(new FileOutputStream(prefix+"_verb_polarity.ser"));
-		oov.writeObject(verbPolarityMap);
-		oov.close();
-		
+
+
 		FileUtils.writeLines(new File(prefix+"_features.txt"), features);
-		FileUtils.writeLines(new File(prefix+"_erb_polarity.txt"), verbPolarityMap.entrySet());
 	}
 
 	/**

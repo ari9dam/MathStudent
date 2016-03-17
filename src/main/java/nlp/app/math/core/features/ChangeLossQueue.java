@@ -79,7 +79,8 @@ public class ChangeLossQueue  implements IFeatureExtractor{
 					featureMap.put(fName1, 1.0);
 				}
 				//double subjConsume = featureMap.get("f_subjConsume"+id);
-				if(typeMatch<0.5 || (polarity <-0.5 && subjMatch < 0.5)||(polarity > 0.5 && subjMatch > 0.5))
+				if(typeMatch<0.5 || (polarity <-0.5 && subjMatch < 0.5)||(polarity > 0.5 && subjMatch > 0.5)
+						||(polarity<0.001 && polarity>-0.0002))
 					return;
 			}
 			

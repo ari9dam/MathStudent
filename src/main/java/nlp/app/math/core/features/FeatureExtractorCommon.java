@@ -98,16 +98,22 @@ public class FeatureExtractorCommon {
 				boolean v2Entailsv1 = false;
 				HashSet<String> verb1 = new HashSet<String>();
 				HashSet<CoreLabel> verb2 = new HashSet<CoreLabel>();
-				for(CoreLabel l: q1.getAssociatedEntity("verb"))
+				for(CoreLabel l: q1.getAssociatedEntity("verb")){
 					verb1.add(l.lemma());
+					if(l.lemma().equalsIgnoreCase("has"))
+						verb1.add("have");
+					else if(l.lemma().equalsIgnoreCase("have"))
+						verb1.add("has");
+				}
 				if(!verb1.isEmpty() && verb1.contains("do")){
 					for(CoreLabel l: q1.getAssociatedEntity("ccomp")){
 						verb1.add(l.lemma());
 					}
 				}
 
-				for(CoreLabel l: q2.getAssociatedEntity("verb"))
+				for(CoreLabel l: q2.getAssociatedEntity("verb")){
 					verb2.add(l);
+				}
 				for(CoreLabel label: verb2){
 					if(label.lemma().equals("do")){
 						for(CoreLabel l: q2.getAssociatedEntity("ccomp")){

@@ -23,6 +23,8 @@ public class Quantity {
 	private Map<String, List<CoreLabel>> context;
 	private boolean isDefault = false;
 	private Boolean allMarker = null;
+	private boolean isPart = false;
+	private Quantity partOf = null;
 
 	public Quantity(String value, Integer sentenceId, Integer tokenId) {
 		this.value = value;
@@ -172,7 +174,10 @@ public class Quantity {
 		for(CoreLabel c: this.getAssociatedEntity("verb")){
 			if(!c.lemma().equalsIgnoreCase("be") &&
 					!c.lemma().equalsIgnoreCase("has") &&
-					!c.lemma().equalsIgnoreCase("have")){
+					!c.lemma().equalsIgnoreCase("have") &&
+					!c.lemma().equalsIgnoreCase("contain") &&
+					!c.lemma().equalsIgnoreCase("remain") &&
+					!c.lemma().equalsIgnoreCase("hold")){
 				return true;
 			}
 		}
@@ -249,5 +254,29 @@ public class Quantity {
 		}
 		
 		return wholeMarkedWithCue;
+	}
+	/**
+	 * @return the isPart
+	 */
+	public boolean isPart() {
+		return isPart;
+	}
+	/**
+	 * @param isPart the isPart to set
+	 */
+	public void setPart(boolean isPart) {
+		this.isPart = isPart;
+	}
+	/**
+	 * @return the partOf
+	 */
+	public Quantity getPartOf() {
+		return partOf;
+	}
+	/**
+	 * @param partOf the partOf to set
+	 */
+	public void setPartOf(Quantity partOf) {
+		this.partOf = partOf;
 	}
 }

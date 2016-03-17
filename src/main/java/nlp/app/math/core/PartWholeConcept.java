@@ -4,7 +4,12 @@
 package nlp.app.math.core;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * @author Arindam
@@ -81,9 +86,6 @@ public class PartWholeConcept implements IMathConcept{
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -96,7 +98,7 @@ public class PartWholeConcept implements IMathConcept{
 		if (parts == null) {
 			if (other.parts != null)
 				return false;
-		} else if (!parts.equals(other.parts))
+		} else if (!setEquals(parts, other.parts))
 			return false;
 		if (whole == null) {
 			if (other.whole != null)
@@ -106,7 +108,37 @@ public class PartWholeConcept implements IMathConcept{
 		return true;
 	}
 	
+	private boolean setEquals(List<Quantity> a, List<Quantity> b) {
+		Set<Quantity> l = new HashSet<Quantity>(a);
+		Set<Quantity> r = new HashSet<Quantity>(b);
+		return l.equals(r);
+	}
 	
+	public JSONObject toJSON(){
+		JSONObject ret = new JSONObject();
+		JSONObject arg1 = new JSONObject();
+		JSONObject arg2 = new JSONObject();
+		JSONArray  part = new JSONArray();
+		
+		arg1.put("name", "whole");
+		if(this.whole.isUnknown())
+			arg1.put("value", "X");
+		else arg1.put("value", this.whole.getValue());
+		
+		arg2.put("name", "part");
+		for (Quantity q : this.parts){
+			if(q.isUnknown())
+				part.put("X");
+			else part.put(q.getValue());
+		}
+		arg2.put("value", part);
+		
+		ret.put("arg1", arg1);
+		ret.put("arg2", arg2);
+		ret.put("type", "CB");
+		
+		return ret;
+	}
 }
 
  

@@ -3,6 +3,8 @@
  */
 package nlp.app.math.core;
 
+import org.json.JSONObject;
+
 /**
  * @author Arindam
  *
@@ -10,5 +12,5 @@ package nlp.app.math.core;
 public interface IMathConcept {
 	public Equation toEquation();
 	public boolean equals(Object obj);
-	
+	public JSONObject toJSON();
 }

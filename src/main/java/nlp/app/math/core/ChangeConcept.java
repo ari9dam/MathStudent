@@ -3,7 +3,12 @@
  */
 package nlp.app.math.core;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * @author Arindam
@@ -95,12 +100,12 @@ public class ChangeConcept implements IMathConcept {
 		if (gains == null) {
 			if (other.gains != null)
 				return false;
-		} else if (!gains.equals(other.gains))
+		} else if (!setEquals(gains,other.gains))
 			return false;
 		if (losses == null) {
 			if (other.losses != null)
 				return false;
-		} else if (!losses.equals(other.losses))
+		} else if (!setEquals(losses,other.losses))
 			return false;
 		if (start == null) {
 			if (other.start != null)
@@ -111,6 +116,17 @@ public class ChangeConcept implements IMathConcept {
 	}
 
 	
+	/**
+	 * @param losses2
+	 * @param losses3
+	 * @return
+	 */
+	private boolean setEquals(List<Quantity> a, List<Quantity> b) {
+		Set<Quantity> l = new HashSet<Quantity>(a);
+		Set<Quantity> r = new HashSet<Quantity>(b);
+		return l.equals(r);
+	}
+
 	@Override
 	public String toString() {
 		String gain="";
@@ -126,6 +142,53 @@ public class ChangeConcept implements IMathConcept {
 		return "ChangeConcept [\nstart=" + start.getValueForEquation() + ", \nend=" + end.getValueForEquation() + ", gains=" + gain + ", \nlosses=" + loss + "]";
 	}
 	
-	
+	public JSONObject toJSON(){
+		
+		JSONObject ret = new JSONObject();
+		JSONObject arg1 = new JSONObject();
+		JSONObject arg2 = new JSONObject();
+		JSONObject arg3 = new JSONObject();
+		JSONObject arg4 = new JSONObject();
+		
+		JSONArray  loss = new JSONArray();
+		JSONArray  gain = new JSONArray();
+		
+		arg1.put("name", "start");
+		if(this.start.isUnknown())
+			arg1.put("value", "X");
+		else if(this.start.isDefault())
+			arg1.put("value", "DEFAULT");
+		else arg1.put("value", this.start.getValue());
+		
+		arg4.put("name", "end");
+		if(this.end.isUnknown())
+			arg4.put("value", "X");
+		else arg4.put("value", this.end.getValue());
+		
+		arg2.put("name", "loss");
+		for (Quantity q : this.losses){
+			if(q.isUnknown())
+				loss.put("X");
+			else loss.put(q.getValue());
+		}
+		arg2.put("value", loss);
+		
+		arg3.put("name", "gain");
+		for (Quantity q : this.gains){
+			if(q.isUnknown())
+				gain.put("X");
+			else gain.put(q.getValue());
+		}
+		arg3.put("value", gain);
+		
+		ret.put("arg1", arg1);
+		ret.put("arg2", arg2);
+		ret.put("arg3", arg3);
+		ret.put("arg4", arg4);
+		
+		ret.put("type", "CH");
+		
+		return ret;
+	}
 
 }

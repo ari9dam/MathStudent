@@ -29,6 +29,7 @@ public class FeatureExtraction {
 
 		this.featureExtractors.add(new GlobalPriors());
 		this.featureExtractors.add(new LocalPriors());
+		this.featureExtractors.add(new PartWholePartQue());
 		this.featureExtractors.add(new PartWholeSubjectCue());
 		this.featureExtractors.add(new PartWholeVerbMatchCue());
 		this.featureExtractors.add(new PartWholeLooseVerbMatchQue());
