@@ -61,7 +61,7 @@ public class TrainingMain {
 		
 		System.out.println("Done!!");*/
 		
-		tsolver.train(false,0.1,null,
+		tsolver.train(true,1.0,0.01,
 				prefix+"_training_data.ser",
 				prefix+"_model_smoothed_0_001.ser");
 		

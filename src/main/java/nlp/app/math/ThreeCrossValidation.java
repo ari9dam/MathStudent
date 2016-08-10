@@ -97,7 +97,7 @@ public class ThreeCrossValidation {
 		td1 = new JSONArray(fold2.toString());
 		for(Object obj : fold3)
 			td1.put(obj);
-		trainingMain.train(td1, "cv1", testProblems);
+		//trainingMain.train(td1, "cv1", testProblems);
 		features = new ArrayList<String>(FileUtils.readLines(
 				new File("cv1"+"_features.txt")));
 		Solver solver3 = new Solver(false, "cv1"+"_model_smoothed_0_001.ser", features);
@@ -139,7 +139,7 @@ public class ThreeCrossValidation {
 			}				
 		}
 		System.out.println("Total ="+total+", correct2 = "+correct2+",exception="+exp);
-
+		FileUtils.writeLines(new File("incorrect_cv"+testProblems.length()+".txt"), incorrect);
 		ConceptNetCache.getInstance().persist();
 	}
 }

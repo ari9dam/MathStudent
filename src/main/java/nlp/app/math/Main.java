@@ -15,12 +15,16 @@ import org.apache.commons.io.FileUtils;
  */
 public class Main {
 	public static void main(String[] args) throws IOException, ClassNotFoundException{
+		String p1 = "C:\\Users\\Arindam\\git\\MathStudent\\cv2";
 		String prefix="C:\\Users\\Arindam\\Dropbox\\Math Challenge\\sample_questions";
 		ArrayList<String> features = new ArrayList<String>(FileUtils.readLines(
-				new File(prefix+"_features.txt")));
+				new File(p1+"_features.txt")));
 		
-		Solver mathSolver = new Solver(true, prefix+"_model_smoothed_0_001.ser", features);
-		String problem =  "	Faye had 34 coloring books. If she gave away 3 of them, but then bought 48 more, how many would she have in total? ";
+		Solver mathSolver = new Solver(true, p1+"_model_smoothed_0_001.ser", features);
+		String problem =  "	Joan found 70 seashells on the beach . "
+				+ "she gave Sam some of her seashells . "
+				+ "She has 27 seashell . "
+				+ "How many seashells did she give to Sam ?";
 		
 		System.out.println(mathSolver.solve(problem));
 	}

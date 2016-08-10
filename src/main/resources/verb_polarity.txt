@@ -1,0 +1,22 @@
+give	-1.0
+find	1.0
+place	-1.0
+borrow	1.0
+plant	-1.0
+lose	-1.0
+make	1.0
+cut	-1.0
+pick	1.0
+store	-1.0
+buy	1.0
+cut down	1.0
+build	-1.0
+add	-1.0
+grow	1.0
+recieve	1.0
+spend	-1.0
+transfer	1.0
+pay	-1.0
+fill	-1.0
+load	-1.0
+take	1.0
