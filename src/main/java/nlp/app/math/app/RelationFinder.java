@@ -27,7 +27,7 @@ public class RelationFinder {
 	private Map<String,Integer> indexMap;
 	private ConvertMathSamples converter;
 	private GenerateAllPossibleWorlds gw;
-	private final String vpFile="C:\\Users\\Arindam\\Dropbox\\Math Challenge\\sample_questions_verb_polarity.ser"; 
+	private final String vpFile="src\\main\\resources\\sample_questions_verb_polarity.ser"; 
 	private Map<String, Double> vpMap ;
 	
 	

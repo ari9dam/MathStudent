@@ -32,8 +32,8 @@ public class ThreeCrossValidation {
 		 * Read all the raw data
 		 * ******************************
 		 */
-		String prefix="C:\\Users\\Arindam\\Dropbox\\Math Challenge\\sample_questions";
-		String file = "C:\\Users\\Arindam\\Dropbox\\Math Challenge\\Math_Word_DS_Kushman\\ALL\\arith_me.json";
+		String prefix="src\\main\\resources\\data";
+		String file = "src\\main\\resources\\data\\annotatedAddSub.json";
 		String jsonString = FileUtils.readFileToString(new 
 				File(file));//File(prefix+"_test.json"));//
 		JSONArray testProblems = new JSONArray(jsonString);
@@ -43,9 +43,9 @@ public class ThreeCrossValidation {
 		 * Read partition 1,2,3
 		 * ********************
 		 */
-		String partition1File = "C:\\Users\\Arindam\\Dropbox\\Math Challenge\\Math_Word_DS_Kushman\\fold1.txt";
-		String partition2File = "C:\\Users\\Arindam\\Dropbox\\Math Challenge\\Math_Word_DS_Kushman\\fold2.txt";
-		String partition3File = "C:\\Users\\Arindam\\Dropbox\\Math Challenge\\Math_Word_DS_Kushman\\fold3.txt";
+		String partition1File = prefix+"\\fold1.txt";
+		String partition2File = prefix+"\\fold2.txt";
+		String partition3File = prefix+"\\fold3.txt";
 
 		List<String> part1 = FileUtils.readLines(new File(partition1File));
 		List<String> part2 = FileUtils.readLines(new File(partition2File));
@@ -73,11 +73,12 @@ public class ThreeCrossValidation {
 		System.out.println("Fold1 size = "+fold1.length());
 		System.out.println("Fold2 size = "+fold2.length());
 		System.out.println("Fold3 size = "+fold3.length());
-
+		
+		
 		TrainingMain trainingMain = new TrainingMain();
 		JSONArray td1 = new JSONArray(fold1.toString());
 		ArrayList<String> features =null;
-		/*for(Object obj : fold2)
+		/*	for(Object obj : fold2)
 			td1.put(obj);
 		trainingMain.train(td1, "cv3", testProblems);
 		features = new ArrayList<String>(FileUtils.readLines(
@@ -97,12 +98,11 @@ public class ThreeCrossValidation {
 		td1 = new JSONArray(fold2.toString());
 		for(Object obj : fold3)
 			td1.put(obj);
-		//trainingMain.train(td1, "cv1", testProblems);
+		trainingMain.train(td1, "cv1", testProblems);
 		features = new ArrayList<String>(FileUtils.readLines(
 				new File("cv1"+"_features.txt")));
 		Solver solver3 = new Solver(false, "cv1"+"_model_smoothed_0_001.ser", features);
 		test(fold1,solver3);
-		
 	}
 
 	public static void test(JSONArray testProblems, Solver solver3) throws IOException{
